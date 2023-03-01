@@ -30,8 +30,7 @@ def std_hparams():
 class DW_Conv(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, stride: int):
         super().__init__()
-        self.conv1 = nn.Conv2d(in_channels, in_channels, 3, stride, 1
-                               groups=in_channels)
+        self.conv1 = nn.Conv2d(in_channels, in_channels, 3, stride, 1, groups=in_channels)
         self.bn1 = nn.BatchNorm2d(in_channels)
         self.conv2 = nn.Conv2d(in_channels, out_channels, 1, 1, 0)
         self.bn2 = nn.BatchNorm2d(out_channels)
@@ -49,7 +48,7 @@ class Real(nn.Module):
         self.bn = nn.BatchNorm2d(32),
 
         self.model = nn.Sequential(
-            DW_Conv(32, 64 1),
+            DW_Conv(32, 64, 1),
             DW_Conv(64, 128, 2),
             DW_Conv(128, 128, 1),
             DW_Conv(128, 256, 2),
@@ -70,6 +69,5 @@ class Real(nn.Module):
         x = F.relu(self.bn(self.conv(x)))
         x = self.model(x)
         x = torch.flatten(x, 1)
-        x = fc(x)
+        x = self.fc(x)
         return x
-

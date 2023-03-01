@@ -28,11 +28,14 @@ def initialize_linear(in_channels, out_channels, init_mode="he"):
         scale = 1 / np.sqrt(in_channels * 8)
     elif init_mode in ["xavier", "glorot"]:
         scale = 1 / np.sqrt((in_channels + out_channels) * 8)
+        
+    print(f"{scale = }")
 
     size_real = [in_channels, out_channels]
     size_img = [in_channels, out_channels * 3]
 
     img_mat = torch.Tensor(*size_img).uniform_(-1, 1)
+    print(f"{img_mat = }")
     mat = Q(torch.cat([torch.zeros(size_real), img_mat], 1))
     mat /= mat.norm()
 

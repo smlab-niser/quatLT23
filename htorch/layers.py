@@ -246,11 +246,13 @@ class QLinear(nn.Module):
         
         quaternion_weight = initialize_linear(self.in_channels, self.out_channels)
         r, i, j, k = quaternion_weight.chunk()
-        
-        self.r_weight     = nn.Parameter(r)
-        self.i_weight     = nn.Parameter(i)
-        self.j_weight     = nn.Parameter(j)
-        self.k_weight     = nn.Parameter(k)
+
+        print(f"{r.shape = } {i.shape = } {j.shape = } {k.shape = }")
+
+        self.r_weight = nn.Parameter(r)
+        self.i_weight = nn.Parameter(i)
+        self.j_weight = nn.Parameter(j)
+        self.k_weight = nn.Parameter(k)
 
         if self.bias:
             bias = torch.zeros(self.out_channels*4)
@@ -264,7 +266,7 @@ class QLinear(nn.Module):
                             torch.cat([self.i_weight,  self.r_weight, -self.k_weight,   self.j_weight], dim=0),
                             torch.cat([self.j_weight,  self.k_weight,  self.r_weight,  -self.i_weight], dim=0),
                             torch.cat([self.k_weight, -self.j_weight,  self.i_weight,   self.r_weight], dim=0)], dim = 1)
-    
+
         return Q(F.linear(x, weight.t(), self.bias))
 
 
