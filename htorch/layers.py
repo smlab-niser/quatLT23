@@ -247,7 +247,7 @@ class QLinear(nn.Module):
         quaternion_weight = initialize_linear(self.in_channels, self.out_channels)
         r, i, j, k = quaternion_weight.chunk()
 
-        print(f"{r.shape = } {i.shape = } {j.shape = } {k.shape = }")
+        # print(f"{r.shape = } {i.shape = } {j.shape = } {k.shape = }")
 
         self.r_weight = nn.Parameter(r)
         self.i_weight = nn.Parameter(i)
