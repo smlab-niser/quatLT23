@@ -1,0 +1,7 @@
+*.csv
+*.gz
+*.zip
+data
+__pycache__
+.ipynb_checkpoints
+myproject.egg-info

@@ -1,0 +1,7 @@
+torch
+torchvision
+# numpy # already installed by torch
+tqdm
+matplotlib
+pandas
+scipy

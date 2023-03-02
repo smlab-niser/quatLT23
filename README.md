@@ -1,2 +1,4 @@
-# quartLT23
-Quarternion Lottery Ticket Hypothesis
+# Quarternion Pruning Paper Advancements
+Quarternion Lottery Ticket Hypothesis advancements
+
+
