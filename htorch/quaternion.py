@@ -463,7 +463,7 @@ class QuaternionTensor(torch.Tensor):
             q = real_repr(q)
         cls.q = q
         cls.device = q.device
-        return super().__new__(cls, q.cpu(), *args, **kwargs)
+        return super().__new__(cls, q.cuda(), *args, **kwargs)  # problem here in this line
 
     def __init__(self, q=[], real_tensor=False, quat_ops=True):
         super().__init__()
