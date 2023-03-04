@@ -532,6 +532,7 @@ class QuaternionTensor(torch.Tensor):
         return out
 
     # overrides pytorch operations
+    @classmethod
     def __torch_function__(self, func, types, args=(), kwargs=None):
         if kwargs is None:
             kwargs = {}
