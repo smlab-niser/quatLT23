@@ -4,12 +4,7 @@
 
 Following experiment was carried out on an NVIDA RTX A6000 GPU using mnist dataset on lennet-300-100 model. The following data is averaged over 1000 epochs. Here is the data for different batch sizes:
 
-<!-- | batchsize  | models     | Forward | Backward |
-| ---------- | ---------- | -------- | ------- |
-| bs = 2**13 | Real       | 0.447ms  | 1.334ms |
-|            | Quaternion | 17.513ms | 3.484ms | -->
-
-<table style="text-align:center">
+<!-- <table style="text-align:center">
     <thead>
         <tr>
             <th>batchsize</th>
@@ -119,7 +114,19 @@ Following experiment was carried out on an NVIDA RTX A6000 GPU using mnist datas
             <td>605.504ms</td>
         </tr>
     </tbody>
-</table>
+</table> -->
+
+| Batch Size | forward real (ms) | forward quat (ms) | backward real (ms) | backward quat (ms) |
+| :--------: | :---------------: | :---------------: | :----------------: | :----------------: |
+|  **8192**  |       3.128       |      13.213       |        1.625       |        3.845       |
+|  **4096**  |       3.149       |      16.693       |        2.665       |        7.080       |
+|  **2048**  |       1.876       |      24.539       |        6.007       |       13.378       |
+|  **1024**  |       2.773       |      37.976       |        8.011       |       24.690       |
+|  **512**   |       5.839       |      44.843       |       17.781       |       37.602       |
+|  **256**   |      10.550       |      62.014       |       26.472       |       66.589       |
+|  **128**   |      21.356       |     106.219       |       51.359       |      130.599       |
+|   **64**   |      40.802       |     219.722       |       99.218       |      285.788       |
+|   **32**   |      89.829       |     447.518       |      236.377       |      605.504       |
 
 ## Determination and analysis of quaternion model's slow pace
 
@@ -134,28 +141,29 @@ Following experiment was carried out on an NVIDA RTX A6000 GPU using mnist datas
   We checked the time taken by these three steps separately. We found that step 1 took around 0.5ms, step 2 took 1ms and step 3 took the rest of the 28.5ms out of the total 30ms taken by forward propagation. The typecasting step is taking around 95% of the time.
 * We removed the typecast, and it did not result in any error. Furthermore, it gave us the same accuracy results with a total time consumption of 2.23ms (for the forward propagation of a quaternion layer), very close to that of a real model (1.235ms).
 * The final and most useful attempt is given in the following section.
+
 ## Before and after changing `q.cpu()` to `q.cuda()`
 
-Changes were made in the returning line of the `QuaternionTensor.__new__()` method in the file [`htorch/quaternion.py`](../htorch/quaternion.py#469). THe change was that instead of removing the typecast, we found the exact line in the class's `__new__()` in which `q.cpu()` was used to send the data to CPU. We replaced it with `q.cuda()` and made it faster. 
+Changes were made in the returning line of the `QuaternionTensor.__new__()` method in the file [`htorch/quaternion.py`](../htorch/quaternion.py#469). THe change was that instead of removing the typecast, we found the exact line in the class's `__new__()` in which `q.cpu()` was used to send the data to CPU. We replaced it with `q.cuda()` and made it faster.
 
-- __Model used:__ lenet-300-100
-- __Dataset:__ mnist
-- __Batch size:__ 8192
+* **Model used:** lenet-300-100
+* **Dataset:** mnist
+* **Batch size:** 8192
 
-| Model | Speed (it/s) |
-| ----- | ----------- |
-| Real  | 70 - 75 |
-| Quat (before) | 20 -25 |
-| Quat (after)  | 55 - 60 |
+| Model         | Speed (it/s) |
+| ------------- | ------------ |
+| Real          | 70 - 75      |
+| Quat (before) | 20 -25       |
+| Quat (after)  | 55 - 60      |
 
 Furthermore, we repeated the batchsize experiment from earlier section with the improved Quaternion models.
 
 ## Batchsize experiment with improved quaternion model
 
-- __Model used:__ lenet-300-100
-- __Dataset:__ mnist
+* **Model used:** lenet-300-100
+* **Dataset:** mnist
 
-<table style="text-align:center">
+<!-- <table style="text-align:center">
     <thead>
         <tr>
             <th>batchsize</th>
@@ -250,4 +258,16 @@ Furthermore, we repeated the batchsize experiment from earlier section with the 
             <td>510.735ms</td>
             </tr>
     </tbody>
-</table>
+</table> -->
+
+| Batch Size | forward real (ms) | forward quat (ms) | backward real (ms) | backward quat (ms) |
+| :--------: | :---------------: | :---------------: | :----------------: | :----------------: |
+|  **8192**  |       2.833       |       1.741       |        1.224       |         4.409      |
+|  **4096**  |       2.824       |       2.479       |        1.982       |         4.425      |
+|  **2048**  |       1.712       |       4.904       |        5.231       |         8.499      |
+|  **1024**  |       2.488       |       9.589       |        6.930       |        17.100      |
+|  **512**   |       4.959       |      19.205       |       13.531       |        33.230      |
+|  **256**   |      10.350       |      38.441       |       26.507       |        65.430      |
+|  **128**   |      20.993       |      75.729       |       51.605       |       129.030      |
+|   **64**   |      40.321       |     148.626       |       99.586       |       253.968      |
+|   **32**   |      80.087       |     297.166       |      200.908       |       510.735      |
