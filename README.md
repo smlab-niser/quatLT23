@@ -1,4 +1,4 @@
-# Quarternion Pruning Paper Advancements
-Quarternion Lottery Ticket Hypothesis advancements
+# Quaternion Pruning Paper Advancements
+Quaternion Lottery Ticket Hypothesis advancements
 
 
