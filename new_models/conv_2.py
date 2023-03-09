@@ -49,7 +49,7 @@ class Real3(nn.Module):
 class Real4(nn.Module):
     def __init__(self, out_channels: int = 10):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(4, 64, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
         self.pool = nn.MaxPool2d(2, 2)
         self.fc1 = nn.Linear(64 * 16 * 16, 256)
