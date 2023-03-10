@@ -7,12 +7,11 @@ import torch.nn.functional as F
 LeNet_300_100 architecture.
 """
 
-
 def std_hparams():
-    hparams = {
+    return {
         "dataset": 'mnist',
         "training": {
-            "batch_size": 60,  # was 60
+            "batch_size": 60,
             "num_epochs": 80,
             "learning_rate": 1.2e-3,
             "optimizer": "adam"
@@ -22,8 +21,6 @@ def std_hparams():
             "percentage": 0.2
         }
     }
-    return hparams
-
 
 class Real(nn.Module):
     def __init__(self):
