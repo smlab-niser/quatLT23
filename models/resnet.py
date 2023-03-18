@@ -38,17 +38,14 @@ class Block(nn.Module):
 
         stride = 2 if downsample else 1
 
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3,
-                               stride=stride, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3,
-                               stride=1, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
 
         if downsample or in_channels != out_channels:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=2,
-                          bias=False),
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=2, bias=False),
                 nn.BatchNorm2d(out_channels)
             )
         else:
@@ -70,19 +67,17 @@ class Real(nn.Module):
         super().__init__()
         num_segments = 3
         filters_per_segment = [16, 32, 64]
-        architecture = [(num_filters, num_segments) for num_filters in
-                        filters_per_segment]
+        architecture = [(num_filters, num_segments) for num_filters in filters_per_segment]
 
         # Initial convolutional layer.
         current_filters = architecture[0][0]
-        self.conv = nn.Conv2d(3, current_filters, kernel_size=3, stride=1,
-                              padding=1, bias=False)
+        self.conv = nn.Conv2d(3, current_filters, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn = nn.BatchNorm2d(current_filters)
 
         # ResNet blocks
         blocks = []
         for segment_index, (filters, num_blocks) in enumerate(architecture):
-            for block_index in range(num_blocks):
+            for block_index in range(num_blocks):          
                 downsample = segment_index > 0 and block_index == 0
                 blocks.append(Block(current_filters, filters, downsample))
                 current_filters = filters
@@ -107,19 +102,16 @@ class Quat_Block(nn.Module):
 
         stride = 2 if downsample else 1
 
-        self.conv1 = layers.QConv2d(in_channels, out_channels, kernel_size=3,
-                                    stride=stride, padding=1, bias=False)
+        self.conv1 = layers.QConv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = layers.QBatchNorm2d(out_channels)
 
-        self.conv2 = layers.QConv2d(out_channels, out_channels, kernel_size=3,
-                                    stride=1, padding=1, bias=False)
+        self.conv2 = layers.QConv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = layers.QBatchNorm2d(out_channels)
 
         # Shortcut connection
         if downsample or in_channels != out_channels:
             self.shortcut = nn.Sequential(
-                layers.QConv2d(in_channels, out_channels, kernel_size=1,
-                               stride=2, bias=False),
+                layers.QConv2d(in_channels, out_channels, kernel_size=1, stride=2, bias=False),
                 layers.QBatchNorm2d(out_channels)
             )
         else:
