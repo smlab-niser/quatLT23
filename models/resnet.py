@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from htorch import layers
 import torch.nn.functional as F
+from htorch import layers
 
 """
 Resnet architecture.

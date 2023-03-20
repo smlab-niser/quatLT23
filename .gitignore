@@ -6,3 +6,5 @@ __pycache__
 myproject.egg-info
 */htorch
 *.sh
+wandb
+*.pth
