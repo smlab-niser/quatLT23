@@ -1,43 +1,50 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from utils import load_imagenet, one_hot
+from utils import load_imagenet
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from tqdm import tqdm, trange
+from tqdm import tqdm
 from sklearn.metrics import accuracy_score
-# from resnet import ResNet
-import wandb
-
-GPU = torch.device('cuda:0')
-CPU = torch.device('cpu')
-
-
-(x, y), (x_val, y_val) = load_imagenet()  # 5 parts of 10 parts
-m = len(x)
+import torchvision
+import time
 
 hparams = {
-    "batch_size": 64,
+    "batch_size": 256,
     "num_epochs": 40,
-    "model": "resnet",
+    "model": "resnet152 from torchvision.models",
     "dataset": "imagenet",
-    "optimizer": "adam",
-    "learning_rate": 1e-3,  # 1.2e-5, 1.2e-7 can be tried
+    "optimizer": "sgd",
+    "learning_rate": 0.1,
+    "gpu": 3,
 }
 
-model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet152', pretrained=True)
+GPU = torch.device(f'cuda:{hparams["gpu"]}')
+CPU = torch.device('cpu')
+
+log = True
+
+model_save_name = f"B={hparams['batch_size']}_E={hparams['num_epochs']}_O={hparams['optimizer']}.pth"
+
+model = torchvision.models.resnet152()
 model.to(GPU)
-optimiser = torch.optim.Adam(model.parameters(), lr=hparams["learning_rate"])
-losses = []
+optimiser = torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"])
 
-wandb.init(project="QuatLT23", name="resnet from pytorch", config=hparams)
+if log:
+    import wandb
+    wandb.init(project="QuatLT23", name="ResNet152 run 1", config=hparams)
+    wandb.watch(model)
 
-wandb.watch(model)
+print("Loading data...")
+(x, y), (x_val, y_val) = load_imagenet()
+m = len(x)
 
 batch_size = hparams["batch_size"]
 num_epochs = hparams["num_epochs"]
 
-for epoch in trange(num_epochs):
+for epoch in range(num_epochs):
+    
+    t0 = time.time()
+    
+    pbar = tqdm(total=m//batch_size+1, desc=f"Epoch {epoch+1}/{num_epochs}")
 
     for i in range(0, len(x), batch_size):
         batch_x, batch_y = x[i:i+batch_size].to(GPU), y[i:i+batch_size].to(GPU)
@@ -47,15 +54,36 @@ for epoch in trange(num_epochs):
         loss.backward()
         optimiser.step()
 
-    torch.save(model, "resnet_imagenet.pth")
+        pbar.update(1)
 
-    train_accuracy = accuracy_score(y[:5000].argmax(1),     model(x[:5000].to(GPU)).to(CPU).argmax(1))
-    test_accuracy  = accuracy_score(y_val[:5000].argmax(1), model(x_val[:5000].to(GPU)).to(CPU).argmax(1))
+    t1 = time.time()
     
-    wandb.log({"train_accuracy": train_accuracy, "test_accuracy": test_accuracy, "loss": loss.item()})
+    torch.save(model, model_save_name)
+    
+    t2 = time.time()
 
-    losses.append(loss.item())
+    ratio = 0.005
+    train_mask = np.random.choice(a=[False, True], size=m, p=[1-ratio, ratio])
+    val_mask   = np.random.choice(a=[False, True], size=len(y_val), p=[1-ratio, ratio])
+    model = model.to(CPU)
+    train_accuracy = accuracy_score(y[train_mask].argmax(1),     model(x[train_mask]).argmax(1))
+    test_accuracy  = accuracy_score(y_val[val_mask].argmax(1), model(x_val[val_mask]).argmax(1))
+    model = model.to(GPU)
+    
+    t3 = time.time()
+
+    if log: wandb.log(
+        {
+            "train_accuracy": train_accuracy,
+            "test_accuracy": test_accuracy,
+            "loss": loss.item(),
+            "training_time": t1-t0,
+            "saving_time": t2-t1,
+            "accuracy_time": t3-t2,
+        }
+    )
+
+    pbar.close()
 
 wandb.finish()
 
-torch.save(model, "resnet152_pytorch.pth")
