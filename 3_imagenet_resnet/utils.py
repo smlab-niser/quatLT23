@@ -10,7 +10,7 @@ def one_hot(y):
     return ret
 
 def load_imagenet(n = 10):
-    base_dir = "/mnt/data/datasets/imagenet/64x64"
+    base_dir = "/home/aritra/project/quartLT23/data/imagenet/64x64"
 
     train_x_files = [f"{base_dir}/train/x{i}.npy" for i in range(1, 11)]
     train_y_files = [f"{base_dir}/train/y{i}.npy" for i in range(1, 11)]

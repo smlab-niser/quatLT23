@@ -4,16 +4,17 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
-import torchvision
+# import torchvision
 import time
+from resnet import ResNet152
 
 hparams = {
     "batch_size": 256,
     "num_epochs": 40,
-    "model": "resnet152 from torchvision.models",
+    "model": "resnet152 custom built",
     "dataset": "imagenet",
     "optimizer": "sgd",
-    "learning_rate": 0.1,
+    "learning_rate": 0.05,
     "gpu": 3,
 }
 
@@ -22,15 +23,15 @@ CPU = torch.device('cpu')
 
 log = True
 
-model_save_name = f"B={hparams['batch_size']}_E={hparams['num_epochs']}_O={hparams['optimizer']}.pth"
+model_save_name = f"B={hparams['batch_size']}_E={hparams['num_epochs']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}.pth"
 
-model = torchvision.models.resnet152()
+model = ResNet152()
 model.to(GPU)
 optimiser = torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"])
 
 if log:
     import wandb
-    wandb.init(project="QuatLT23", name="ResNet152 run 1", config=hparams)
+    wandb.init(project="QuatLT23", name="my ResNet152 run 2", config=hparams)
     wandb.watch(model)
 
 print("Loading data...")
@@ -41,9 +42,9 @@ batch_size = hparams["batch_size"]
 num_epochs = hparams["num_epochs"]
 
 for epoch in range(num_epochs):
-    
+
     t0 = time.time()
-    
+
     pbar = tqdm(total=m//batch_size+1, desc=f"Epoch {epoch+1}/{num_epochs}")
 
     for i in range(0, len(x), batch_size):
@@ -57,9 +58,9 @@ for epoch in range(num_epochs):
         pbar.update(1)
 
     t1 = time.time()
-    
+
     torch.save(model, model_save_name)
-    
+
     t2 = time.time()
 
     ratio = 0.005
@@ -69,7 +70,7 @@ for epoch in range(num_epochs):
     train_accuracy = accuracy_score(y[train_mask].argmax(1),     model(x[train_mask]).argmax(1))
     test_accuracy  = accuracy_score(y_val[val_mask].argmax(1), model(x_val[val_mask]).argmax(1))
     model = model.to(GPU)
-    
+
     t3 = time.time()
 
     if log: wandb.log(
@@ -86,4 +87,3 @@ for epoch in range(num_epochs):
     pbar.close()
 
 wandb.finish()
-
