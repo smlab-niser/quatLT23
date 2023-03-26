@@ -159,9 +159,9 @@ class QConv2d(nn.Module):
                             torch.cat([self.i_weight,  self.r_weight, -self.k_weight,   self.j_weight], dim=0),
                             torch.cat([self.j_weight,  self.k_weight,  self.r_weight,  -self.i_weight], dim=0),
                             torch.cat([self.k_weight, -self.j_weight,  self.i_weight,   self.r_weight], dim=0)], dim = 1)
-    
-        return Q(F.conv2d(x, weight.transpose(1,0), self.bias, self.stride,
-                                  self.padding, self.dilation, self.groups))
+
+        ret = F.conv2d(x, weight.transpose(1,0), self.bias, self.stride, self.padding, self.dilation, self.groups)
+        return Q(ret)
 
 
 class QConv3d(nn.Module):

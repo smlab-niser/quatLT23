@@ -9,14 +9,14 @@ def one_hot(y):
     ret[np.arange(len_y), y-1] = True
     return ret
 
-def load_imagenet(n = 10):
-    base_dir = "/home/aritra/project/quartLT23/data/imagenet/64x64"
+def load_imagenet(n=10):
+    base_dir = "/mnt/data/datasets/imagenet/64x64"
 
     train_x_files = [f"{base_dir}/train/x{i}.npy" for i in range(1, 11)]
     train_y_files = [f"{base_dir}/train/y{i}.npy" for i in range(1, 11)]
-    
+
     x_train, y_train = None, None
-    
+
     for i in trange(n):
         if x_train is None:
             x_train = np.load(train_x_files[i])
@@ -35,7 +35,7 @@ def load_imagenet(n = 10):
 
     x_train = torch.from_numpy(x_train.reshape(-1, 3, 64, 64)).float()
     y_train = torch.from_numpy(one_hot(y_train)).float()
-    
+
     print("train data converted to tensors")
 
     x_val = torch.from_numpy(x_val.reshape(-1, 3, 64, 64)).float()

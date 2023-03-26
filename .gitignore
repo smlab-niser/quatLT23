@@ -10,3 +10,5 @@ wandb
 *.pth
 *.npy
 data/imagenet/64x64/val/val_data
+*.JPEG
+*.txt
