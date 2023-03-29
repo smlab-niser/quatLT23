@@ -9,3 +9,5 @@
 | [ReLU and Leaky ReLU](https://youtu.be/DDBk3ZFNtJc) | `ReLU(x) = max(0, x)` is sometimes used as an activation function |
 | [Softmax](https://youtu.be/8ah-qhvaQqU) | `Softmax(x) = exp(x) / sum(exp(x))` activation is used for multi-class classification. Generally only used in the oputput layer. |
 | [Batch Normalization](https://youtu.be/1XMjfhEFbFA) | Batch normalization is used to normalize the input to a layer. [Original Paper Here](https://arxiv.org/abs/1502.03167) |
+
+https://github.com/DennisHanyuanXu/Tiny-ImageNet/blob/master/README.md

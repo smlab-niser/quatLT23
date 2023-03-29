@@ -14,6 +14,7 @@ class Block(nn.Module):
     def __init__(
         self, in_channels, intermediate_channels, identity_downsample=None, stride=1
     ):
+        print(f"Block: {in_channels = } {intermediate_channels = } {stride = }")
         super().__init__()
         self.expansion = 4
         self.conv1 = quatnn.QConv2d(
@@ -70,9 +71,9 @@ class Block(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, block, layers, image_channels, num_classes):
         super(ResNet, self).__init__()
-        self.in_channels = 64
+        self.in_channels = 64//4
         self.conv1 = quatnn.QConv2d(
-            image_channels, 64//4, kernel_size=7, stride=2, padding=3, bias=False
+            image_channels//4, 64//4, kernel_size=7, stride=2, padding=3, bias=False
         )
         self.bn1 = quatnn.QBatchNorm2d(64//4)
         self.relu = nn.ReLU()

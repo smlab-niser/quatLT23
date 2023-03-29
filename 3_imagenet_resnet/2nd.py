@@ -26,19 +26,19 @@ log = False
 wandb_name = f"4-{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
 
 
-if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
-elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
-elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
-elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
-elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
-else: raise ValueError("Invalid model name")
-
-# if   hparams["model"].lower() == "resnet18" : model =  resnet18 (4)
-# elif hparams["model"].lower() == "resnet34" : model =  resnet34 (4)
-# elif hparams["model"].lower() == "resnet50" : model =  resnet50 (4)
-# elif hparams["model"].lower() == "resnet101": model =  resnet101(4)
-# elif hparams["model"].lower() == "resnet152": model =  resnet152(4)
+# if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
+# elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
+# elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
+# elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
+# elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
 # else: raise ValueError("Invalid model name")
+
+if   hparams["model"].lower() == "resnet18" : model =  resnet18 (4)
+elif hparams["model"].lower() == "resnet34" : model =  resnet34 (4)
+elif hparams["model"].lower() == "resnet50" : model =  resnet50 (4)
+elif hparams["model"].lower() == "resnet101": model =  resnet101(4)
+elif hparams["model"].lower() == "resnet152": model =  resnet152(4)
+else: raise ValueError("Invalid model name")
 
 
 model.to(GPU)
@@ -52,7 +52,7 @@ if log:
     wandb.watch(model)
 
 print("Loading data...")
-training_generator = torch.utils.data.DataLoader(Imagenet64_train(), batch_size=hparams["batch_size"], num_workers=4)
+training_generator = torch.utils.data.DataLoader(Imagenet64_train(50000), batch_size=hparams["batch_size"], num_workers=4)
 validation_generator = torch.utils.data.DataLoader(Imagenet64_val(), batch_size=450, num_workers=4)
 # m = len(training_set)
 

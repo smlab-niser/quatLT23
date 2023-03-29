@@ -2,7 +2,6 @@ import torch
 # import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
-import matplotlib.pyplot as plt
 from tqdm import trange
 import numpy as np
 from resnet_real import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
@@ -33,25 +32,38 @@ hparams = {
 
 pprint(hparams)
 
+# sync = False  # whether to sync with wandb
+
 device = torch.device(hparams["device"])
 
 train_file = f"../data/cifar100/coarse_train.csv" if hparams["dataset"] == "cifar100_coarse" else f"../data/cifar100/fine_train.csv"
 test_file = f"../data/cifar100/coarse_test.csv" if hparams["dataset"] == "cifar100_coarse" else f"../data/cifar100/fine_test.csv"
 
 train = pd.read_csv(train_file, header=None).values
-x = torch.from_numpy(train[:, 1:].reshape(-1, 3, 32, 32)/255).float()
+x = torch.from_numpy(train[:, 1:].reshape(-1, 3, 32, 32).transpose((0, 3, 2, 1))/255).float()
 y = torch.nn.functional.one_hot(torch.from_numpy(train[:, 0]).long(), hparams["num_classes"])
 
 test = pd.read_csv(test_file, header=None).values
-x_test = torch.from_numpy(test[:, 1:].reshape(-1, 3, 32, 32)/255).float()
+x_test = torch.from_numpy(test[:, 1:].reshape(-1, 3, 32, 32).transpose((0, 3, 2, 1))/255).float()
 y_test = torch.nn.functional.one_hot(torch.from_numpy(test[:, 0]).long(), hparams["num_classes"])
 
+mat = np.array(
+    [
+        [1, 0, 0, 0.299],
+        [0, 1, 0, 0.587],
+        [0, 0, 1, 0.144]
+    ]
+)  # RGB to RGB+Grayscale conversion matrix
 
-if   hparams["model"] == "ResNet18" : model =  ResNet18(3, hparams["num_classes"])  # takes ~4.9s/epoch
-elif hparams["model"] == "ResNet34" : model =  ResNet34(3, hparams["num_classes"])  # takes ~8.2s/epoch
-elif hparams["model"] == "ResNet50" : model =  ResNet50(3, hparams["num_classes"])
-elif hparams["model"] == "ResNet101": model = ResNet101(3, hparams["num_classes"])
-elif hparams["model"] == "ResNet152": model = ResNet152(3, hparams["num_classes"])
+x = torch.Tensor(np.dot(x, mat).transpose((0, 3, 1, 2))).float().to(device)
+x_test = torch.Tensor(np.dot(x_test, mat).transpose((0, 3, 1, 2))).float().to(device)
+
+
+if   hparams["model"] == "ResNet18" : model =  ResNet18(4, hparams["num_classes"])  # takes ~4.9s/epoch
+elif hparams["model"] == "ResNet34" : model =  ResNet34(4, hparams["num_classes"])  # takes ~8.2s/epoch
+elif hparams["model"] == "ResNet50" : model =  ResNet50(4, hparams["num_classes"])
+elif hparams["model"] == "ResNet101": model = ResNet101(4, hparams["num_classes"])
+elif hparams["model"] == "ResNet152": model = ResNet152(4, hparams["num_classes"])
 else: raise ValueError("Invalid model name")
 
 model.to(device)
@@ -59,7 +71,7 @@ optimiser = torch.optim.Adam(model.parameters(), lr=hparams["learning_rate"])
 losses = []
 train_acc, test_acc = [], []
 
-wandb_name = f"{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
+wandb_name = f"4-{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
 
 if sync:
     import wandb
@@ -117,4 +129,5 @@ torch.save(model, f"saved_models/{wandb_name}_E={hparams['num_epochs']}.pth")
 print(f"Final Train Accuracy: {train_acc[-1]:.2f}%")
 print(f"Final Test Accuracy: {test_acc[-1]:.2f}%")
 
-wandb.finish()
+if sync:
+    wandb.finish()

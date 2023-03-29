@@ -8,15 +8,15 @@ Programmed by Aladdin Persson <aladdin.persson@hotmail.com>
 *    2022-12-20 Update comments, code revision, checked still works with latest PyTorch version
 """
 
-
+from utils import load_tinyimagenet
+import time
 import torch.nn as nn
 
 
-class Block(nn.Module):
+class block(nn.Module):
     def __init__(
         self, in_channels, intermediate_channels, identity_downsample=None, stride=1
     ):
-        # print(f"Block: {in_channels = } {intermediate_channels = } {stride = }")
         super().__init__()
         self.expansion = 4
         self.conv1 = nn.Conv2d(
@@ -148,28 +148,25 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-
 def ResNet18(img_channel=3, num_classes=1000):
-    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes)
+    return ResNet(block, [2, 2, 2, 2], img_channel, num_classes)
 
 def ResNet34(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes)
+    return ResNet(block, [3, 4, 6, 3], img_channel, num_classes)
 
 def ResNet50(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes)
+    return ResNet(block, [3, 4, 6, 3], img_channel, num_classes)
 
 def ResNet101(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes)
+    return ResNet(block, [3, 4, 23, 3], img_channel, num_classes)
 
 def ResNet152(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes)
+    return ResNet(block, [3, 8, 36, 3], img_channel, num_classes)
 
 
 if __name__ == "__main__":
-    import time
-    from utils import load_imagenet
     model = ResNet152()
-    (x, y), (x_val, y_val) = load_imagenet(1)
+    (x, y), (x_val, y_val) = load_tinyimagenet(1)
     
     print("Loaded")
 
