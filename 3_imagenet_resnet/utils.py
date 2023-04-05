@@ -2,6 +2,96 @@ import numpy as np
 import torch
 from tqdm import tqdm, trange
 
+class Imagenet_Train(torch.utils.data.Dataset):
+    def __init__(self, length = 1281166, base_dir="/home/aritra/project/quartLT23/data/ILSVRC", d4 = True):
+        self.base_dir = base_dir+"/train_npy"
+        self.length = length
+        self.d4 = d4
+        self.mat = np.array(
+            [
+                [1, 0, 0, 0.299],
+                [0, 1, 0, 0.587],
+                [0, 0, 1, 0.144]
+            ]
+        )
+    def __len__(self):
+        return self.length
+    def __getitem__(self, index):
+        data = np.load(f"{self.base_dir}/img_{index}.npy")
+        # print(data.shape)
+        if self.d4:
+            b = data[1:].reshape(224,224,3)
+            x = np.dot(b, self.mat).transpose(2, 0, 1)
+        else: x = data[1:].reshape(224, 224, 3).transpose(2,0,1)
+        return torch.from_numpy(x).float(), torch.tensor([data[0]]).float()
+   
+class Imagenet_Val(torch.utils.data.Dataset):
+    def __init__(self, length = 50000, base_dir="/home/aritra/project/quartLT23/data/ILSVRC", d4 = True):
+        self.base_dir = base_dir+"/test_npy"
+        self.length = length
+        self.d4 = d4
+        self.mat = np.array(
+            [
+                [1, 0, 0, 0.299],
+                [0, 1, 0, 0.587],
+                [0, 0, 1, 0.144]
+            ]
+        )
+    def __len__(self):
+        return self.length
+    def __getitem__(self, index):
+        data = np.load(f"{self.base_dir}/img_{index}.npy")
+        # print(data.shape)
+        if self.d4:
+            b = data[1:].reshape(224,224,3)
+            x = np.dot(b, self.mat).transpose(2, 0, 1)
+        else: x = data[1:].reshape(224, 224, 3).transpose(2,0,1)
+        return torch.from_numpy(x).float(), torch.tensor([data[0]]).float()
+      
+def load_imagenet(n=10):
+    base_dir="/home/aritra/project/quartLT23/data/ILSVRC"
+
+    train_files = [f"{base_dir}/train_npy/img_{i}.npy" for i in range(n)]
+
+    # x_train, y_train = None, None
+    train = None
+
+    for i in range(n):
+        if train is None:
+            train = np.array([np.load(train_files[i])])
+        else:
+            train = np.append(train, [np.load(train_files[i])], axis=0)
+
+    test_files = [f"{base_dir}/test_npy/img_{i}.npy" for i in range(n)]
+
+    # x_train, y_train = None, None
+    test = None
+
+    for i in range(n):
+        if test is None:
+            test = np.array([np.load(test_files[i])])
+        else:
+            test = np.append(test, [np.load(test_files[i])], axis=0)
+            
+            
+    val_file = base_dir + "/val/val_data"
+    val = np.load(val_file, allow_pickle=True)
+    x_val = val["data"]
+    y_val = np.array(val["labels"])
+    del val
+    print("val data loaded")
+
+    x_train = torch.from_numpy(x_train.reshape(-1, 3, 64, 64)).float()
+    y_train = torch.from_numpy(one_hot(y_train)).float()
+
+    print("train data converted to tensors")
+
+    x_val = torch.from_numpy(x_val.reshape(-1, 3, 64, 64)).float()
+    y_val = torch.from_numpy(one_hot(y_val)).float()
+
+    return (x_train, y_train), (x_val, y_val)
+   
+   
 class Imagenet64_train(torch.utils.data.Dataset):
     def __init__(self, length = 1281167, base_dir="/mnt/data/datasets/imagenet/64x64", d4 = True):
         self.base_dir = base_dir+"/train"
@@ -46,7 +136,7 @@ def one_hot(y):
     ret[np.arange(len_y), y-1] = True
     return ret.astype(bool)
 
-def load_imagenet(n=10):
+def load_imagenet64(n=10):
     base_dir = "/mnt/data/datasets/imagenet/64x64/data"
 
     train_x_files = [f"{base_dir}/train/x{i}.npy" for i in range(1, 11)]
@@ -109,5 +199,6 @@ def make4D(x):
 #     # print(f"{x.shape} -> {b.shape}")
 #     print(x.device)
 if __name__ == "__main__":
-    l = Imagenet64_train()
-    l[0]
+    l = Imagenet_train()
+    print(l[0])
+    

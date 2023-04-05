@@ -12,3 +12,5 @@ wandb
 data/imagenet/64x64/val/val_data
 *.JPEG
 *.txt
+*.xml
+*.m
