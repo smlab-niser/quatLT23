@@ -7,3 +7,5 @@ pandas
 scipy
 notebook
 scikit-learn
+kaggle
+wandb

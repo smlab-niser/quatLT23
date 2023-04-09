@@ -66,7 +66,7 @@ class Real4(nn.Module):
 class Quat(nn.Module):
     def __init__(self, out_channels: int = 10):
         super().__init__()
-        self.conv11 = layers.QConv2d(1, 16, kernel_size=3, stride=1, padding=1)
+        self.conv11 = layers.QConv2d( 1, 16, kernel_size=3, stride=1, padding=1)
         self.conv12 = layers.QConv2d(16, 16, kernel_size=3, stride=1, padding=1)
         self.conv21 = layers.QConv2d(16, 32, kernel_size=3, stride=1, padding=1)
         self.conv22 = layers.QConv2d(32, 32, kernel_size=3, stride=1, padding=1)

@@ -10,9 +10,9 @@ from torch import nn
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 40,
-    "model": "ResNet152",
-    "dataset": "imagenet",
+    "num_epochs": 35,
+    "model": "ResNet34",
+    "dataset": "imagenet64",
     "optimizer": "sgd",
     "learning_rate": 0.1,
     "gpu": 0,
@@ -23,9 +23,9 @@ CPU = torch.device('cpu')
 GPU = torch.device(f'cuda:{hparams["gpu"]}')
 
 
-log = False
+log = True
 
-wandb_name = f"4-large_{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
+wandb_name = f"4-im64_{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
 
 
 if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
@@ -56,8 +56,8 @@ if log:
 print("Loading data...")
 # training_generator = torch.utils.data.DataLoader(Imagenet_Train(10000), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
 # validation_generator = torch.utils.data.DataLoader(Imagenet_Val(1000), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
-training_generator = torch.utils.data.DataLoader(Imagenet64_train(10000), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
-validation_generator = torch.utils.data.DataLoader(Imagenet64_val(1000), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
+training_generator = torch.utils.data.DataLoader(Imagenet64_train(), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
+validation_generator = torch.utils.data.DataLoader(Imagenet64_val(), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
 # m = len(training_set)
 
 batch_size = hparams["batch_size"]

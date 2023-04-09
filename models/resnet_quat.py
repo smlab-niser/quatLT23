@@ -14,10 +14,10 @@ class Block(nn.Module):
     def __init__(
         self, in_channels, intermediate_channels, identity_downsample=None, stride=1
     ):
-        print(f"Block: {in_channels = } {intermediate_channels = } {stride = }")
+        # print(f"Block: {in_channels = } {intermediate_channels = } {stride = }")
         super().__init__()
         self.expansion = 4
-        self.conv1 = quatnn.QConv2d(
+        self.conv1  = quatnn.QConv2d(
             in_channels,
             intermediate_channels,
             kernel_size=1,
@@ -25,8 +25,8 @@ class Block(nn.Module):
             padding=0,
             bias=False,
         )
-        self.bn1 = quatnn.QBatchNorm2d(intermediate_channels)
-        self.conv2 = quatnn.QConv2d(
+        self.bn1    = quatnn.QBatchNorm2d(intermediate_channels)
+        self.conv2  = quatnn.QConv2d(
             intermediate_channels,
             intermediate_channels,
             kernel_size=3,
@@ -34,8 +34,8 @@ class Block(nn.Module):
             padding=1,
             bias=False,
         )
-        self.bn2 = quatnn.QBatchNorm2d(intermediate_channels)
-        self.conv3 = quatnn.QConv2d(
+        self.bn2    = quatnn.QBatchNorm2d(intermediate_channels)
+        self.conv3  = quatnn.QConv2d(
             intermediate_channels,
             intermediate_channels * self.expansion,
             kernel_size=1,
@@ -43,21 +43,29 @@ class Block(nn.Module):
             padding=0,
             bias=False,
         )
-        self.bn3 = quatnn.QBatchNorm2d(intermediate_channels * self.expansion)
-        self.relu = nn.ReLU()
+        self.bn3    = quatnn.QBatchNorm2d(intermediate_channels * self.expansion)
+        self.relu   = nn.ReLU()
         self.identity_downsample = identity_downsample
         self.stride = stride
 
     def forward(self, x):
+        # print(f"\tBlock: {x.shape = }")
         identity = x.clone()
 
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.conv2(x)
+        # print(f"\t\tBefore going into bn2: {x.shape = }")
         x = self.bn2(x)
         x = self.relu(x)
+        # print(f"\tBlock: {x.shape = }")
         x = self.conv3(x)
+        # try:
+        #     x = self.conv3(x)
+        # except Exception as e:
+        #     print(f"Exception: {x.shape = } = {e}")
+        #     raise e
         x = self.bn3(x)
 
         if self.identity_downsample is not None:
@@ -94,21 +102,34 @@ class ResNet(nn.Module):
         )
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = quatnn.QLinear(512 * 4, num_classes)
+        self.fc = quatnn.QLinear(512, num_classes//4)
 
     def forward(self, x):
+        # print(f"Before conv1: {x.shape = }")
         x = self.conv1(x)
+        # print(f"After conv1: {x.shape = }")
         x = self.bn1(x)
+        # print(f"After bn1: {x.shape = }")
         x = self.relu(x)
+        # print(f"After relu: {x.shape = }")
         x = self.maxpool(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
+        # print(f"After maxpool: {x.shape = }\n")
+
+        x = self.layer1(x)  #  64, 1
+        # print(f"After layer1: {x.shape = }")
+        x = self.layer2(x)  # 128, 2
+        # print(f"After layer2: {x.shape = }")
+        x = self.layer3(x)  # 256, 2
+        # print(f"After layer3: {x.shape = }")
+        x = self.layer4(x)  # 512, 2
+        # print(f"After layer4: {x.shape = }\n")
 
         x = self.avgpool(x)
+        # print(f"After avgpool: {x.shape = }")
         x = x.reshape(x.shape[0], -1)
+        # print(f"After reshaping: {x.shape = }")
         x = self.fc(x)
+        # print(f"After fc: {x.shape = }")
 
         return x
 

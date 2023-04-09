@@ -99,18 +99,31 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * 4, num_classes)
 
     def forward(self, x):
+        # print(f"Before conv1: {x.shape = }")
         x = self.conv1(x)
+        # print(f"After conv1: {x.shape = }")
         x = self.bn1(x)
+        # print(f"After bn1: {x.shape = }")
         x = self.relu(x)
+        # print(f"After relu: {x.shape = }")
         x = self.maxpool(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
+        # print(f"After maxpool: {x.shape = }\n")
+
+        x = self.layer1(x)  #  64, 1
+        # print(f"After layer1: {x.shape = }")
+        x = self.layer2(x)  # 128, 2
+        # print(f"After layer2: {x.shape = }")
+        x = self.layer3(x)  # 256, 2
+        # print(f"After layer3: {x.shape = }")
+        x = self.layer4(x)  # 512, 2
+        # print(f"After layer4: {x.shape = }\n")
 
         x = self.avgpool(x)
+        # print(f"After avgpool: {x.shape = }")
         x = x.reshape(x.shape[0], -1)
+        # print(f"After reshaping: {x.shape = }")
         x = self.fc(x)
+        # print(f"After fc: {x.shape = }")
 
         return x
 
@@ -165,21 +178,21 @@ def ResNet152(img_channel=3, num_classes=1000):
     return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes)
 
 
-if __name__ == "__main__":
-    import time
-    from utils import load_imagenet
-    model = ResNet152()
-    (x, y), (x_val, y_val) = load_imagenet(1)
+# if __name__ == "__main__":
+#     import time
+#     from utils import load_imagenet
+#     model = ResNet152()
+#     (x, y), (x_val, y_val) = load_imagenet(1)
     
-    print("Loaded")
+#     print("Loaded")
 
-    x = x[:256]  # coz 1 batch is 256 in original paper
-    y = y[:256]
-    x_val = x_val[:256]
-    y_val = y_val[:256]
+#     x = x[:256]  # coz 1 batch is 256 in original paper
+#     y = y[:256]
+#     x_val = x_val[:256]
+#     y_val = y_val[:256]
     
-    print("Reduced")
+#     print("Reduced")
 
-    t0 = time.time()
-    print(model(x).shape)
-    print(f"Took {(time.time() - t0):.3f}s")  # 0.484s for ResNet18, 1.376s for ResNet152 on cpu
+#     t0 = time.time()
+#     print(model(x).shape)
+#     print(f"Took {(time.time() - t0):.3f}s")  # 0.484s for ResNet18, 1.376s for ResNet152 on cpu

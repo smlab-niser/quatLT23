@@ -155,13 +155,17 @@ class QConv2d(nn.Module):
         if x.dim() == 5:
             x = torch.cat([*x.chunk()], 2).squeeze()
 
+        # if x.dim() == 2:
+        #     a, b = x.shape
+        #     x = x.reshape((a, b, 1, 1))
+
         weight = torch.cat([torch.cat([self.r_weight, -self.i_weight, -self.j_weight,  -self.k_weight], dim=0),
                             torch.cat([self.i_weight,  self.r_weight, -self.k_weight,   self.j_weight], dim=0),
                             torch.cat([self.j_weight,  self.k_weight,  self.r_weight,  -self.i_weight], dim=0),
                             torch.cat([self.k_weight, -self.j_weight,  self.i_weight,   self.r_weight], dim=0)], dim = 1)
-
+        # print(f"\t\t{weight.shape = },\n\t\t\t{x.shape = }")
         ret = F.conv2d(x, weight.transpose(1,0), self.bias, self.stride, self.padding, self.dilation, self.groups)
-        return Q(ret)
+        return ret#Q(ret)
 
 
 class QConv3d(nn.Module):
@@ -267,7 +271,14 @@ class QLinear(nn.Module):
                             torch.cat([self.j_weight,  self.k_weight,  self.r_weight,  -self.i_weight], dim=0),
                             torch.cat([self.k_weight, -self.j_weight,  self.i_weight,   self.r_weight], dim=0)], dim = 1)
 
-        return Q(F.linear(x, weight.t(), self.bias))
+        try:
+            ret = F.linear(x, weight.t(), self.bias)
+        except:
+            print(self.r_weight.shape, self.i_weight.shape, self.j_weight.shape, self.k_weight.shape)
+            print(weight.shape)
+            print(x.shape)
+        
+        return Q(ret)
 
 
 class QConvTranspose1d(nn.Module):
@@ -549,6 +560,7 @@ class QBatchNorm2d(nn.Module):
             init.constant_(self.weight[3, 3], 0.5)
 
     def forward(self, x):
+        # print(f"\t\t\tBN: {self.in_channels = }")
         x = torch.stack(torch.chunk(x, 4, 1), 1).permute(1, 0, 2, 3, 4)
         axes, d = (1, *range(3, x.dim())), x.shape[0]
         shape = 1, x.shape[2], *([1] * (x.dim() - 3))
@@ -596,8 +608,15 @@ class QBatchNorm2d(nn.Module):
             z = scaled + self.bias.reshape(4, *shape)
 
         z = torch.cat(torch.chunk(z, 4, 0), 2).squeeze()
+        
+        if z.dim() == 2:
+            z = z.reshape(z.shape[0], z.shape[1], 1, 1)
+
+        # print(f"shape before returning: {z.shape = }")
 
         return Q(z)
+
+# def QBNAritra(in_channels):
     
 #########################################################################################
 #                                                                                       #
