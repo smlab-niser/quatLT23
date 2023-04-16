@@ -199,6 +199,6 @@ def make4D(x):
 #     # print(f"{x.shape} -> {b.shape}")
 #     print(x.device)
 if __name__ == "__main__":
-    l = Imagenet_train()
+    l = Imagenet_Train()
     print(l[0])
     

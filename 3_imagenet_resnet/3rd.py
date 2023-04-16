@@ -1,5 +1,5 @@
 import numpy as np
-from utils import Imagenet_Train, Imagenet_Val, Imagenet64_train, Imagenet64_val
+from utils import Imagenet64_train, Imagenet64_val
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm, trange
@@ -10,30 +10,30 @@ from torch import nn
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 35,
+    "num_epochs": 5,
     "model": "ResNet34",
     "dataset": "imagenet64",
-    "optimizer": "sgd",
-    "learning_rate": 0.1,
+    "optimizer": "adam",
+    "learning_rate": 1e-3,
     "gpu": 0,
 }
-
 
 CPU = torch.device('cpu')
 GPU = torch.device(f'cuda:{hparams["gpu"]}')
 
-
 log = True
 
-wandb_name = f"4-im64_{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
+wandb_name = f"4-new-{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
 
 
-if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
-elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
-elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
-elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
-elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
-else: raise ValueError("Invalid model name")
+# if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
+# elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
+# elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
+# elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
+# elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
+# else: raise ValueError("Invalid model name")
+
+model = torch.load("saved_models/4-new-ResNet34_imagenet64_B=64_O=adam_ll=0.001_E=10.pth")
 
 # if   hparams["model"].lower() == "resnet18" : model =  resnet18 (4)
 # elif hparams["model"].lower() == "resnet34" : model =  resnet34 (4)
@@ -44,8 +44,8 @@ else: raise ValueError("Invalid model name")
 
 
 model.to(GPU)
-optimiser = torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"])
-# optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
+# optimiser = torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"])
+optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
 loss_fn = nn.CrossEntropyLoss()
 
 if log:
@@ -68,7 +68,7 @@ train_acc, test_acc = [], []
 print("Starting to Train")
 for epoch in range(num_epochs):
     print("Training")
-    for batch_x, batch_y in tqdm(training_generator):
+    for batch_x, batch_y in tqdm(training_generator, desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch"):
         # print("Batching")
         # print(f"{batch_x.shape = }, {batch_y.shape = }")
         # print(batch_y.max(), batch_y.min())
@@ -108,14 +108,6 @@ for epoch in range(num_epochs):
         j += 1
         if j == 100: break
     test_acc.append(np.array(train_accs).mean())
-    
-    # for i in range(0, len(x_val), batch_size_acc):
-    # for i in trange(0, 45000, batch_size_acc):
-    #     batch_x_test, batch_y_test = x_val[i:i+batch_size_acc].to(GPU), y_val[i:i+batch_size_acc].numpy()
-    #     test_pred = model(batch_x_test)
-    #     acc = accuracy_score(batch_y_test.argmax(1), test_pred.argmax(1).cpu().numpy())
-    #     test_accs.append(acc*100)
-    # test_acc.append(np.array(test_accs).mean())
     print(f"Test Accuracy: {test_acc[-1]:.2f}%")
 
     if log: wandb.log(
