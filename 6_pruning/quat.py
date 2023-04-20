@@ -14,8 +14,8 @@ from models.resnet_quat import ResNet18_quat, ResNet34_quat, ResNet50_quat, ResN
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 20,
-    "model": "ResNet18_quat",
+    "num_epochs": 40,
+    "model": "ResNet152",
     "dataset": "imagenet64",
     "optimizer": "sgd",
     "learning_rate": 0.1,

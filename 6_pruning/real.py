@@ -57,5 +57,3 @@ num_epochs = hparams["num_epochs"]
 train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, log=True)
 
 wandb.finish()
-
-
