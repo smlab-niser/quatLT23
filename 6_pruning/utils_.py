@@ -9,29 +9,6 @@ from tqdm import tqdm, trange
 import numpy as np
 import wandb
 
-# class ITrain:
-#     def __init__(self, ns=[3, 3, 4], batch_size=256):
-#         self.ns = ns
-#         self.base_dir = "/mnt/data/datasets/imagenet/64x64/data"
-#         self.batch_size = batch_size
-#         train_x_files = [f"{self.base_dir}/train/x{i}.npy" for i in range(1, 11)][::-1]
-#         train_y_files = [f"{self.base_dir}/train/y{i}.npy" for i in range(1, 11)][::-1]
-#         batches = []
-#         for n in ns:
-#             b = []
-#             for i in range(n):
-#                 b.append([train_x_files.pop(), train_y_files.pop()])
-#             batches.append(b)
-        
-#         self.batches = batches
-        
-#     def __
-    
-# if __name__ == "__main__":
-#     from pprint import pprint
-#     it = ITrain()
-#     pprint(it.batches)
-
 
 def load_imagenet64(n=10):
     base_dir = "/mnt/data/datasets/imagenet/64x64/data"

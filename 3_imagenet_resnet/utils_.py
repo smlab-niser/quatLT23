@@ -264,3 +264,5 @@ def train(
 
         if save:
             torch.save(model, f"saved_models/{save}_E={epoch}.pth")
+            
+    return train_acc, test_acc

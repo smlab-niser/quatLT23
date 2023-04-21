@@ -8,11 +8,11 @@ from sklearn.metrics import accuracy_score
 # from resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
 from models.resnet_real import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
 from torch import nn
-from utils import train
+from utils.training import train
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 3,
+    "num_epochs": 30,
     "model": "ResNet18",
     "dataset": "imagenet64",
     "optimizer": "sgd",
@@ -52,7 +52,7 @@ loss_fn = nn.CrossEntropyLoss()
 
 if log:
     import wandb
-    wandb.init(project="QuatLT23", name="7_from_3rd.py", config=hparams)
+    wandb.init(project="QuatLT23", name="3rd.py", config=hparams)
     wandb.watch(model)
 
 print("Loading data...")
@@ -66,73 +66,10 @@ batch_size = hparams["batch_size"]
 num_epochs = hparams["num_epochs"]
 
 print("Starting to Train")
-# def train(
-#     model, num_epochs,
-#     training_generator,
-#     validation_generator,
-#     optimiser,
-#     loss_fn,
-#     save = None,
-#     GPU = torch.device("cuda"),
-#     log = False
-# ):
-#     train_acc, test_acc = [], []
-#     for epoch in range(num_epochs):
-#         print("Training")
-#         for batch_x, batch_y in tqdm(training_generator, des[c=f"Epoch {epoch+1}/{num_epochs}", unit="batch"):
-#             batch_x, batch_y = batch_x.to(GPU), F.one_hot(batch_y.long().flatten(), num_classes=1000).to(GPU)
-#             optimiser.zero_grad()
-#             output = model(batch_x)
-#             loss = loss_fn(output, batch_y.argmax(1))
-#             loss.backward()
-#             optimiser.step()
-        
-#         del output
-
-#         print("Calculating Accuracy")
-
-#         train_accs, test_accs = [], []
-
-#         j = 0
-#         for batch_x, batch_y in training_generator:
-#             batch_x, batch_y = batch_x.to(GPU), batch_y.flatten()
-#             train_pred = model(batch_x)
-#             acc = accuracy_score(batch_y.numpy(), train_pred.argmax(1).cpu().numpy())
-#             train_accs.append(acc*100)
-#             j += 1
-#             if j == 100: break
-#         train_acc.append(np.array(train_accs).mean())
-#         print(f"Train Accuracy: {train_acc[-1]:.2f}%")
-
-
-#         j = 0
-#         for batch_x, batch_y in validation_generator:
-#             batch_x, batch_y = batch_x.to(GPU), batch_y.flatten()
-#             test_pred = model(batch_x)
-#             acc = accuracy_score(batch_y.numpy(), test_pred.argmax(1).cpu().numpy())
-#             train_accs.append(acc*100)
-#             j += 1
-#             if j == 100: break
-#         test_acc.append(np.array(train_accs).mean())
-#         print(f"Test Accuracy: {test_acc[-1]:.2f}%")
-
-#         if log: wandb.log(
-#             {
-#                 "train_acc": train_acc[-1],
-#                 "test_acc": test_acc[-1],
-#                 "loss": loss.item(),
-#             }
-#         )
-
-#         if save:
-#             torch.save(model, f"saved_models/{save}_E={epoch}.pth")
-
-
 
 train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, GPU = GPU, log=True)
 
 if log: wandb.finish()
-
 
 
 # TODO:
