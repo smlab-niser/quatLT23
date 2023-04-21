@@ -11,12 +11,13 @@ from models.resnet_real import ResNet18, ResNet34, ResNet50, ResNet101, ResNet15
 from utils import train
 
 hparams = {
+    "prune": None,
     "batch_size": 256,
     "num_epochs": 30,
     "model": "ResNet18",
     "dataset": "imagenet64",
     "optimizer": "sgd",
-    "learning_rate": 1e-3,
+    "learning_rate": 0.1,
     "gpu": 0,
 }
 
@@ -80,6 +81,6 @@ def prune_model(model, fraction):
 model = prune_model(model, 0.75)
 # remove the pruned weights
 
-train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, log=True)
+train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, GPU = GPU, log=True)
 
 wandb.finish()
