@@ -1,0 +1,6 @@
+{
+	"cifar10": "/home/aritra/project/quatLT23/data/cifar10",
+	"cifar100": "/home/aritra/project/quatLT23/data/cifar100",
+	"mnist": "/home/aritra/project/quatLT23/data/mnist",
+	"imagenet64x64": "/mnt/data/datasets/imagenet/64x64"
+}

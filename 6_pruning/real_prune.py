@@ -7,7 +7,7 @@ from utils.training import train
 from utils.pruning import prune_model
 
 hparams = {
-    "prune": None,
+    "prune": 0,
     "batch_size": 256,
     "num_epochs": 30,
     "model": "ResNet18",
@@ -42,10 +42,8 @@ validation_generator = torch.utils.data.DataLoader(Val(), shuffle=True, batch_si
 
 num_epochs = hparams["num_epochs"]
 
-
 if hparams["prune"]:
     model = prune_model(model, hparams["prune"])
-# remove the pruned weights
 
 train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, GPU = GPU, log=True)
 

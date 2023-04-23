@@ -1,5 +1,5 @@
 import numpy as np
-from data_loaders.imagenet import Train, Val
+from data_loaders.ILSVRC import Train, Val
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm, trange
@@ -12,9 +12,9 @@ from utils.training import train
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 30,
+    "num_epochs": 25,
     "model": "ResNet18",
-    "dataset": "imagenet64",
+    "dataset": "imagenet",
     "optimizer": "sgd",
     "learning_rate": 0.1,
     "gpu": 0,
@@ -28,14 +28,14 @@ log = True
 wandb_name = f"4-{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
 
 
-if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
-elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
-elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
-elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
-elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
-else: raise ValueError("Invalid model name")
+# if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
+# elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
+# elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
+# elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
+# elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
+# else: raise ValueError("Invalid model name")
+model = torch.load("saved_models/ILSVRC_working_B256_E=4.pth")
 
-# model = torch.load("saved_models/4-new-ResNet34_imagenet64_B=64_O=adam_ll=0.001_E=10.pth")
 
 # if   hparams["model"].lower() == "resnet18" : model =  resnet18 (4)
 # elif hparams["model"].lower() == "resnet34" : model =  resnet34 (4)
@@ -52,7 +52,7 @@ loss_fn = nn.CrossEntropyLoss()
 
 if log:
     import wandb
-    wandb.init(project="QuatLT23", name="3rd.py", config=hparams)
+    wandb.init(project="QuatLT23", name=wandb_name, config=hparams)
     wandb.watch(model)
 
 print("Loading data...")
@@ -67,7 +67,7 @@ num_epochs = hparams["num_epochs"]
 
 print("Starting to Train")
 
-train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, GPU = GPU, log=True)
+train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, GPU = GPU, log=log, save="ILSVRC_working_B256", epoch_shift = 5)
 
 if log: wandb.finish()
 

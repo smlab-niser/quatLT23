@@ -1,7 +1,5 @@
 import torch
 import numpy as np
-import random
-import time
 
 class Train(torch.utils.data.Dataset):
     def __init__(self, length = 1281167, base_dir="/mnt/data/datasets/imagenet/64x64", d4 = True):
@@ -59,3 +57,4 @@ def make4D(x):
     x = x.permute(0, 2, 3, 1)
     x = torch.matmul(x, mat)
     return x.permute(0, 3, 1, 2)
+

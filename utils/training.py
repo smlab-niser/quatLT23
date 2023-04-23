@@ -13,10 +13,11 @@ def train(
     loss_fn,
     save = None,
     GPU = torch.device("cuda"),
-    log = False
+    log = False,
+    epoch_shift=0
 ):
     train_acc, test_acc = [], []
-    for epoch in range(num_epochs):
+    for epoch in range(epoch_shift, num_epochs):
         print("Training")
         for batch_x, batch_y in tqdm(training_generator, desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch"):
             batch_x, batch_y = batch_x.to(GPU), F.one_hot(batch_y.long().flatten(), num_classes=1000).to(GPU)
@@ -43,6 +44,7 @@ def train(
         train_acc.append(np.array(train_accs).mean())
         print(f"Train Accuracy: {train_acc[-1]:.2f}%")
 
+        del train_pred
 
         j = 0
         for batch_x, batch_y in validation_generator:
@@ -54,6 +56,9 @@ def train(
             if j == 100: break
         test_acc.append(np.array(train_accs).mean())
         print(f"Test Accuracy: {test_acc[-1]:.2f}%")
+        
+        del test_pred
+        # del batch_x, batch_y
 
         if log: wandb.log(
             {
