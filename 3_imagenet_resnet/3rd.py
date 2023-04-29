@@ -12,9 +12,9 @@ from utils.training import train
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 25,
-    "model": "ResNet18",
-    "dataset": "imagenet",
+    "num_epochs": 40,
+    "model": "ResNet152",
+    "dataset": "ILSVRC",
     "optimizer": "sgd",
     "learning_rate": 0.1,
     "gpu": 0,
@@ -34,7 +34,7 @@ wandb_name = f"4-{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size'
 # elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
 # elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
 # else: raise ValueError("Invalid model name")
-model = torch.load("saved_models/ILSVRC_working_B256_E=4.pth")
+model = torch.load("saved_models/ILSVRC_RN152_B256_E=26.pth")
 
 
 # if   hparams["model"].lower() == "resnet18" : model =  resnet18 (4)
@@ -65,9 +65,21 @@ validation_generator = torch.utils.data.DataLoader(Val(), shuffle=True, batch_si
 batch_size = hparams["batch_size"]
 num_epochs = hparams["num_epochs"]
 
-print("Starting to Train")
+print(f"Starting to Train with {model}")
 
-train(model, num_epochs, training_generator, validation_generator, optimiser, loss_fn, GPU = GPU, log=log, save="ILSVRC_working_B256", epoch_shift = 5)
+train(
+    model,
+    num_epochs,
+    training_generator,
+    validation_generator,
+    optimiser,
+    loss_fn,
+    GPU = GPU,
+    log=log,
+    save="ILSVRC_RN152_B256",
+    calculate_accuracy=False,
+    epoch_shift=26
+)
 
 if log: wandb.finish()
 

@@ -60,7 +60,7 @@ class Block(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, image_channels, num_classes):
+    def __init__(self, block, layers, image_channels, num_classes, name):
         super(ResNet, self).__init__()
         self.in_channels = 64
         self.conv1 = nn.Conv2d(
@@ -86,6 +86,10 @@ class ResNet(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * 4, num_classes)
+        self.name = name
+    
+    def __str__(self):
+        return self.name
 
     def forward(self, x):
         # print(f"Before conv1: {x.shape = }")
@@ -152,19 +156,19 @@ class ResNet(nn.Module):
 
 
 def ResNet18(img_channel=3, num_classes=1000):
-    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes)
+    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes, "ResNet18")
 
 def ResNet34(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes)
+    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet34")
 
 def ResNet50(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes)
+    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet50")
 
 def ResNet101(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes)
+    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes, "ResNet101")
 
 def ResNet152(img_channel=3, num_classes=1000):
-    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes)
+    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes, "ResNet152")
 
 
 # if __name__ == "__main__":
