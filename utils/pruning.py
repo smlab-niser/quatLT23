@@ -14,15 +14,17 @@ def prune_model(model, fraction):
     Returns:
         nn.Module: Pruned PyTorch model with trainable weights.
     """
-    # Validate input fraction
-    if fraction <= 0 or fraction >= 1:
-        raise ValueError("Pruning fraction should be between 0 and 1, exclusive.")
-
     # Identify the pruning method to be used based on the model type
     if isinstance(model, nn.Module):
         prune_method = prune.l1_unstructured
     else:
         raise ValueError("The provided model is not a valid nn.Module.")
+
+    # Validate input fraction
+    if fraction==1:
+        return model
+    if fraction <= 0 or fraction > 1:
+        raise ValueError("Pruning fraction should be in (0, 1]")
 
     # Iterate through each module in the model and apply pruning
     for module_name, module in model.named_modules():

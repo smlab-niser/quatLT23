@@ -6,9 +6,9 @@ import torch.nn.functional as F
 from tqdm import tqdm, trange
 from sklearn.metrics import accuracy_score
 import numpy as np
-from data_loaders.imagenet import Train, Val
+from data_loaders.ILSVRC import Train, Val
 from models.resnet_real import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
-from utils import train
+from utils.training import train
 
 hparams = {
     "batch_size": 256,
@@ -42,15 +42,9 @@ if log:
     wandb.watch(model)
 
 print("Loading data...")
-# validation_generator = torch.utils.data.DataLoader(Imagenet_Val(1000), shuffle=True, batch_size=hparams["batch_size"], num_workers=4)
-# training_generators = [
-#     torch.utils.data.DataLoader(Train(0), batch_size=hparams["batch_size"], num_workers=4),
-#     torch.utils.data.DataLoader(Train(1), batch_size=hparams["batch_size"], num_workers=4),
-#     torch.utils.data.DataLoader(Train(2), batch_size=hparams["batch_size"], num_workers=4)
-# ]
 training_generator = torch.utils.data.DataLoader(Train(), shuffle=False, batch_size=hparams["batch_size"], num_workers=4)
 validation_generator = torch.utils.data.DataLoader(Val(), shuffle=False, batch_size=hparams["batch_size"], num_workers=4)
-# m = len(training_set)
+
 
 num_epochs = hparams["num_epochs"]
 

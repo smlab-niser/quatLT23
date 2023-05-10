@@ -3,7 +3,8 @@ from data_loaders.ILSVRC import Train, Val
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm, trange
-from utils.training import train, top5acc_check, all_acc_models
+from utils.training import train
+from utils.accuracy import all_acc_models, top5acc_check
 import os
 
 hparams = {

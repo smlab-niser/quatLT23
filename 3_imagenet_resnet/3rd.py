@@ -1,5 +1,5 @@
 import numpy as np
-from data_loaders.ILSVRC import Train, Val
+from data_loaders.cifar100 import Train, Val
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm, trange
@@ -12,8 +12,8 @@ from utils.training import train
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 40,
-    "model": "ResNet152",
+    "num_epochs": 20,
+    "model": "ResNet18",
     "dataset": "ILSVRC",
     "optimizer": "sgd",
     "learning_rate": 0.1,
@@ -28,13 +28,13 @@ log = True
 wandb_name = f"4-{hparams['model']}_{hparams['dataset']}_B={hparams['batch_size']}_O={hparams['optimizer']}_ll={hparams['learning_rate']}"
 
 
-# if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
-# elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
-# elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
-# elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
-# elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
-# else: raise ValueError("Invalid model name")
-model = torch.load("saved_models/ILSVRC_RN152_B256_E=26.pth")
+if   hparams["model"].lower() == "resnet18" : model =  ResNet18(4)
+elif hparams["model"].lower() == "resnet34" : model =  ResNet34(4)
+elif hparams["model"].lower() == "resnet50" : model =  ResNet50(4)
+elif hparams["model"].lower() == "resnet101": model = ResNet101(4)
+elif hparams["model"].lower() == "resnet152": model = ResNet152(4)
+else: raise ValueError("Invalid model name")
+# model = torch.load("saved_models/ILSVRC_RN152_B256_E=26.pth")
 
 
 # if   hparams["model"].lower() == "resnet18" : model =  resnet18 (4)
@@ -78,7 +78,7 @@ train(
     log=log,
     save="ILSVRC_RN152_B256",
     calculate_accuracy=False,
-    epoch_shift=26
+    # epoch_shift=26
 )
 
 if log: wandb.finish()

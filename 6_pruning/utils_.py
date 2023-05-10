@@ -149,3 +149,4 @@ def prune_model(model: nn.Module, pruning_percentage: float) -> nn.Module:
     prune.remove(model, 'weight')
 
     return model, get_model_sparsity(model)
+
