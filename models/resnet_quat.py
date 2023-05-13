@@ -171,18 +171,18 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-def ResNet18_quat(img_channel=3, num_classes=1000):
+def ResNet18_quat(img_channel=4, num_classes=1000):
     return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes, "ResNet18_quat")
 
-def ResNet34_quat(img_channel=3, num_classes=1000):
+def ResNet34_quat(img_channel=4, num_classes=1000):
     return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet34_quat")
 
-def ResNet50_quat(img_channel=3, num_classes=1000):
+def ResNet50_quat(img_channel=4, num_classes=1000):
     return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet50_quat")
 
-def ResNet101_quat(img_channel=3, num_classes=1000):
+def ResNet101_quat(img_channel=4, num_classes=1000):
     return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes, "ResNet101_quat")
 
-def ResNet152_quat(img_channel=3, num_classes=1000):
+def ResNet152_quat(img_channel=4, num_classes=1000):
     return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes, "ResNet152_quat")
 

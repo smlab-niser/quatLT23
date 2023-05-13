@@ -1,9 +1,11 @@
+from json import load
 import torch
 import numpy as np
 
 class Train(torch.utils.data.Dataset):
-    def __init__(self, length = 1281166, base_dir="/mnt/data/datasets/ILSVRC", d4 = True):
-        self.base_dir = base_dir+"/train_npy2"
+    def __init__(self, length = 1281166, d4 = True):
+        with open("../base_dirs.json") as f:
+            self.base_dir = load(f)["ILSVRC"]+"/train_npy2"
         self.length = length
         self.d4 = d4
         self.mat = np.array(
@@ -26,7 +28,8 @@ class Train(torch.utils.data.Dataset):
 
 class Val(torch.utils.data.Dataset):
     def __init__(self, length = 50000, base_dir="/mnt/data/datasets/ILSVRC", d4 = True):
-        self.base_dir = base_dir+"/test_npy2"
+        with open("../base_dirs.json") as f:
+            self.base_dir = load(f)["ILSVRC"]+"/test_npy2"
         self.length = length
         self.d4 = d4
         self.mat = np.array(

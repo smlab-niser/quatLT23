@@ -1,9 +1,11 @@
+from json import load
 import torch
 import numpy as np
 
 class Train(torch.utils.data.Dataset):
-    def __init__(self, length = 1281167, base_dir="/mnt/data/datasets/imagenet/64x64", d4 = True):
-        self.base_dir = base_dir+"/train"
+    def __init__(self, length = 1281167, d4 = True):
+        with open("../base_dirs.json") as f:
+            self.base_dir = load(f)["imagenet64x64"]+"/train"
         self.length = length
         self.d4 = d4
         self.mat = np.array(
@@ -25,8 +27,9 @@ class Train(torch.utils.data.Dataset):
 
 
 class Val(torch.utils.data.Dataset):
-    def __init__(self, length = 50000, base_dir="/mnt/data/datasets/imagenet/64x64", d4 = True):
-        self.base_dir = base_dir+"/data/val"
+    def __init__(self, length = 50000, d4 = True):
+        with open("../base_dirs.json") as f:
+            self.base_dir = load(f)["imagenet64x64"]+"/data/val"
         self.length = length
         data = np.load(f"{self.base_dir}/val_data", allow_pickle=True)
         self.x = torch.from_numpy((data["data"]/255).reshape(-1, 3, 64, 64)).float()
