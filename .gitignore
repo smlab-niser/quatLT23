@@ -5,7 +5,7 @@ __pycache__
 base_dirs.json
 .ipynb_checkpoints
 myproject.egg-info
-*/htorch
+# */htorch
 *.sh
 wandb
 *.pth

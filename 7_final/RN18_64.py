@@ -3,7 +3,7 @@ from torch import nn
 from tqdm import tqdm
 
 # from data_loaders.cifar100 import Train, Val
-from data_loaders.ILSVRC import Train, Val
+from data_loaders.imagenet import Train, Val
 from models.resnet_real import ResNet18
 from models.resnet_quat import ResNet18_quat
 from utils.training import one_epoch, train_accuracy
@@ -11,11 +11,11 @@ from utils.pruning import prune_model
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 15,
-    "num_prune": 20,
-    "prune_part": 0.8,
+    "num_epochs": 8,
+    "num_prune": 6,
+    "prune_part": 0.6,
     "model": "ResNet18",
-    "dataset": "ILSVRC",
+    "dataset": "imagenet64x64",
     "optimizer": "sgd",
     "learning_rate": 0.1,
     "gpu": 0,
