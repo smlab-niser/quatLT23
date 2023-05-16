@@ -6,12 +6,15 @@ base_dirs.json
 .ipynb_checkpoints
 myproject.egg-info
 # */htorch
+.vscode
 *.sh
 wandb
 *.pth
+*.pt
 *.npy
 data/imagenet/64x64/val/val_data
 *.JPEG
 *.txt
 *.xml
 *.m
+*.png
