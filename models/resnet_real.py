@@ -155,37 +155,18 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
 
-def ResNet18(img_channel=4, num_classes=1000):
-    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes, "ResNet18")
+def ResNet18(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes, name)
 
-def ResNet34(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet34")
+def ResNet34(img_channel=4, num_classes=1000, name = "ResNet34"):
+    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, name)
 
-def ResNet50(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet50")
+def ResNet50(img_channel=4, num_classes=1000, name = "ResNet50"):
+    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, name)
 
-def ResNet101(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes, "ResNet101")
+def ResNet101(img_channel=4, num_classes=1000, name = "ResNet101"):
+    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes, name)
 
-def ResNet152(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes, "ResNet152")
+def ResNet152(img_channel=4, num_classes=1000, name = "ResNet152"):
+    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes, name)
 
-
-# if __name__ == "__main__":
-#     import time
-#     from utils import load_imagenet
-#     model = ResNet152()
-#     (x, y), (x_val, y_val) = load_imagenet(1)
-    
-#     print("Loaded")
-
-#     x = x[:256]  # coz 1 batch is 256 in original paper
-#     y = y[:256]
-#     x_val = x_val[:256]
-#     y_val = y_val[:256]
-    
-#     print("Reduced")
-
-#     t0 = time.time()
-#     print(model(x).shape)
-#     print(f"Took {(time.time() - t0):.3f}s")  # 0.484s for ResNet18, 1.376s for ResNet152 on cpu

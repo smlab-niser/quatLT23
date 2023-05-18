@@ -1,5 +1,5 @@
 # nn.Conv2d            => quatnn.QConv2d
-# nn.BatchNorm2D       => quatnn.QBatchNorm2d
+# nn.BatchNorm2d       => not changed to ~=> quatnn.QBatchNorm2D~
 # nn.MaxPool2d         => quatnn.QMaxPool2d
 # nn.AdaptiveAvgPool2d 
 # nn.Linear            => quatnn.QLinear
@@ -10,6 +10,7 @@
 import torch.nn as nn
 from htorch import layers as quatnn
 
+
 class Block(nn.Module):
     def __init__(
         self, in_channels, intermediate_channels, identity_downsample=None, stride=1
@@ -17,55 +18,47 @@ class Block(nn.Module):
         # print(f"Block: {in_channels = } {intermediate_channels = } {stride = }")
         super().__init__()
         self.expansion = 4
-        self.conv1  = quatnn.QConv2d(
-            in_channels,
-            intermediate_channels,
+        self.conv1 = quatnn.QConv2d(
+            in_channels // 4,
+            intermediate_channels // 4,
             kernel_size=1,
             stride=1,
             padding=0,
             bias=False,
         )
-        self.bn1    = quatnn.QBatchNorm2d(intermediate_channels)
-        self.conv2  = quatnn.QConv2d(
-            intermediate_channels,
-            intermediate_channels,
+        self.bn1 = nn.BatchNorm2d(intermediate_channels)
+        self.conv2 = quatnn.QConv2d(
+            intermediate_channels // 4,
+            intermediate_channels // 4,
             kernel_size=3,
             stride=stride,
             padding=1,
             bias=False,
         )
-        self.bn2    = quatnn.QBatchNorm2d(intermediate_channels)
-        self.conv3  = quatnn.QConv2d(
-            intermediate_channels,
-            intermediate_channels * self.expansion,
+        self.bn2 = nn.BatchNorm2d(intermediate_channels)
+        self.conv3 = quatnn.QConv2d(
+            intermediate_channels // 4,
+            intermediate_channels * self.expansion // 4,
             kernel_size=1,
             stride=1,
             padding=0,
             bias=False,
         )
-        self.bn3    = quatnn.QBatchNorm2d(intermediate_channels * self.expansion)
-        self.relu   = nn.ReLU()
+        self.bn3 = nn.BatchNorm2d(intermediate_channels * self.expansion)
+        self.relu = nn.ReLU()
         self.identity_downsample = identity_downsample
         self.stride = stride
 
     def forward(self, x):
-        # print(f"\tBlock: {x.shape = }")
         identity = x.clone()
 
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.conv2(x)
-        # print(f"\t\tBefore going into bn2: {x.shape = }")
         x = self.bn2(x)
         x = self.relu(x)
-        # print(f"\tBlock: {x.shape = }")
         x = self.conv3(x)
-        # try:
-        #     x = self.conv3(x)
-        # except Exception as e:
-        #     print(f"Exception: {x.shape = } = {e}")
-        #     raise e
         x = self.bn3(x)
 
         if self.identity_downsample is not None:
@@ -79,32 +72,32 @@ class Block(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, block, layers, image_channels, num_classes, name):
         super(ResNet, self).__init__()
-        self.in_channels = 64//4
+        self.in_channels = 64
         self.conv1 = quatnn.QConv2d(
-            image_channels//4, 64//4, kernel_size=7, stride=2, padding=3, bias=False
+            image_channels //4, 16, kernel_size=7, stride=2, padding=3, bias=False
         )
-        self.bn1 = quatnn.QBatchNorm2d(64//4)
+        self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # Essentially the entire ResNet architecture are in these 4 lines below
         self.layer1 = self._make_layer(
-            block, layers[0], intermediate_channels=64//4, stride=1
+            block, layers[0], intermediate_channels=64, stride=1
         )
         self.layer2 = self._make_layer(
-            block, layers[1], intermediate_channels=128//4, stride=2
+            block, layers[1], intermediate_channels=128, stride=2
         )
         self.layer3 = self._make_layer(
-            block, layers[2], intermediate_channels=256//4, stride=2
+            block, layers[2], intermediate_channels=256, stride=2
         )
         self.layer4 = self._make_layer(
-            block, layers[3], intermediate_channels=512//4, stride=2
+            block, layers[3], intermediate_channels=512, stride=2
         )
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = quatnn.QLinear(512, num_classes//4)
         self.name = name
-        
+    
     def __str__(self):
         return self.name
 
@@ -147,20 +140,20 @@ class ResNet(nn.Module):
         if stride != 1 or self.in_channels != intermediate_channels * 4:
             identity_downsample = nn.Sequential(
                 quatnn.QConv2d(
-                    self.in_channels,
-                    intermediate_channels * 4,
+                    self.in_channels // 4,
+                    intermediate_channels,
                     kernel_size=1,
                     stride=stride,
                     bias=False,
                 ),
-                quatnn.QBatchNorm2d(intermediate_channels * 4),
+                nn.BatchNorm2d(intermediate_channels * 4),
             )
 
         layers.append(
             block(self.in_channels, intermediate_channels, identity_downsample, stride)
         )
 
-        # The expansion size is always 4 for ResNet 50, 101, 152
+        # The expansion size is always 4 for ResNet 50,101,152
         self.in_channels = intermediate_channels * 4
 
         # For example for first resnet layer: 256 will be mapped to 64 as intermediate layer,
@@ -171,18 +164,19 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-def ResNet18_quat(img_channel=4, num_classes=1000):
-    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes, "ResNet18_quat")
 
-def ResNet34_quat(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet34_quat")
+def ResNet18_quat(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(Block, [2, 2, 2, 2], img_channel, num_classes, name)
 
-def ResNet50_quat(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, "ResNet50_quat")
+def ResNet34_quat(img_channel=4, num_classes=1000, name = "ResNet34"):
+    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, name)
 
-def ResNet101_quat(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes, "ResNet101_quat")
+def ResNet50_quat(img_channel=4, num_classes=1000, name = "ResNet50"):
+    return ResNet(Block, [3, 4, 6, 3], img_channel, num_classes, name)
 
-def ResNet152_quat(img_channel=4, num_classes=1000):
-    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes, "ResNet152_quat")
+def ResNet101_quat(img_channel=4, num_classes=1000, name = "ResNet101"):
+    return ResNet(Block, [3, 4, 23, 3], img_channel, num_classes, name)
+
+def ResNet152_quat(img_channel=4, num_classes=1000, name = "ResNet152"):
+    return ResNet(Block, [3, 8, 36, 3], img_channel, num_classes, name)
 
