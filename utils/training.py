@@ -190,4 +190,16 @@ def train_multiacc(
         return train_acc1, test_acc1, train_acc5, test_acc5
     else:
         return train_acc1, test_acc1
-    
+
+def train_multiple_models(
+        x, y,
+        models,
+        optimisers,
+        loss_fns: list,
+        GPU: torch.device = torch.device("cuda")
+    ):
+    losses = []
+    for model, optimiser, loss_fn in zip(models, optimisers, loss_fns):
+        loss = one_epoch(model, x, y, optimiser, loss_fn, GPU)
+        losses.append(loss.item())
+    return losses
