@@ -32,21 +32,42 @@ def prune_model(model, fraction):
     for module_name, module in model.named_modules():
         if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
             prune_method(module, name='weight', amount=fraction)
-            # prune.remove(module, 'weight')
         elif isinstance(module, layers.QConv2d) or isinstance(module, layers.QLinear):
             prune_method(module, name='r_weight', amount=fraction)
-            # prune.remove(module, 'r_weight')
             prune_method(module, name='i_weight', amount=fraction)
-            # prune.remove(module, 'i_weight')
             prune_method(module, name='j_weight', amount=fraction)
-            # prune.remove(module, 'j_weight')
             prune_method(module, name='k_weight', amount=fraction)
-            # prune.remove(module, 'k_weight')
-
-    # Remove the pruned weights
-    # prune.remove(module, 'weight')
 
     return model
+
+
+def reset_model(m):
+    """
+    Reset the weights of the model's learnable parameters using the Xavier uniform initialization.
+
+    Args:
+        m (torch.nn.Module): The module whose weights need to be reset.
+
+    Examples:
+        # Reset the weights of a model
+        model = MyModel()
+        torch.manual_seed(seed)
+        model.apply(reset_model)
+    """
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+        try:torch.nn.init.xavier_uniform_(m.weight_orig.data)
+        except:torch.nn.init.xavier_uniform_(m.weight.data)
+    elif isinstance(m, layers.QConv2d) or isinstance(m, layers.QLinear):
+        try:
+            nn.init.xavier_uniform_(m.r_weight_orig.data)
+            nn.init.xavier_uniform_(m.i_weight_orig.data)
+            nn.init.xavier_uniform_(m.j_weight_orig.data)
+            nn.init.xavier_uniform_(m.k_weight_orig.data)
+        except:
+            nn.init.xavier_uniform_(m.r_weight.data)
+            nn.init.xavier_uniform_(m.i_weight.data)
+            nn.init.xavier_uniform_(m.j_weight.data)
+            nn.init.xavier_uniform_(m.k_weight.data)
 
 
 def get_prune_percentage(model):
@@ -57,7 +78,7 @@ def get_prune_percentage(model):
         model (nn.Module): PyTorch model to be pruned.
 
     Returns:
-        float: Percentage of weights pruned from the model.
+        float: Part of weights pruned from the model.
     """
     total_weights = 0
     pruned_weights = 0
@@ -85,20 +106,3 @@ def get_prune_percentage(model):
                 pruned_weights += module.k_weight.numel()
 
     return pruned_weights / total_weights
-
-
-def reset_model(m):
-    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-        try:torch.nn.init.xavier_uniform_(m.weight_orig.data)
-        except:torch.nn.init.xavier_uniform_(m.weight.data)
-    elif isinstance(m, layers.QConv2d) or isinstance(m, layers.QLinear):
-        try:
-            nn.init.xavier_uniform_(m.r_weight_orig.data)
-            nn.init.xavier_uniform_(m.i_weight_orig.data)
-            nn.init.xavier_uniform_(m.j_weight_orig.data)
-            nn.init.xavier_uniform_(m.k_weight_orig.data)
-        except:
-            nn.init.xavier_uniform_(m.r_weight.data)
-            nn.init.xavier_uniform_(m.i_weight.data)
-            nn.init.xavier_uniform_(m.j_weight.data)
-            nn.init.xavier_uniform_(m.k_weight.data)

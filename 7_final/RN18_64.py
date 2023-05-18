@@ -11,9 +11,9 @@ from utils.pruning import prune_model, reset_model
 
 hparams = {
     "batch_size": 256,
-    "num_epochs": 8,
-    "num_prune": 6,
-    "left_after_prune": 0.6,
+    "num_epochs": 7,
+    "num_prune": 25,
+    "left_after_prune": 0.8,
     "model": "ResNet18",
     "dataset": "imagenet64x64",
     "optimizer": "sgd",
@@ -21,10 +21,10 @@ hparams = {
     "gpu": 0,
 }
 
-log = True
+log = False
 save = True
 seed = 21
-
+save_path = "saved_models/RN18"
 CPU = torch.device('cpu')
 GPU = torch.device(f'cuda:{hparams["gpu"]}')
 
@@ -85,8 +85,8 @@ for epoch in range(num_epochs):
     
 
 if save:
-    torch.save(models[0], f"saved_models/RN18/real_unpruned.pth")
-    torch.save(models[1], f"saved_models/RN18/quat_unpruned.pth")
+    torch.save(models[0], f"{save_path}/real_unpruned.pth")
+    torch.save(models[1], f"{save_path}/quat_unpruned.pth")
 
 print("pretraining done...")
 
@@ -102,7 +102,7 @@ for prune_it in range(hparams["num_prune"]):
     loss_fns = [nn.CrossEntropyLoss() for _ in models]
 
     for epoch in range(num_epochs):
-        for batch_x, batch_y in tqdm(training_generator, desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch"):
+        for batch_x, batch_y in tqdm(training_generator, desc=f"P{prune_it+1}: Epoch {epoch+1}/{num_epochs}", unit="batch"):
             losses = train_multiple_models(batch_x, batch_y, models, optimisers, loss_fns, GPU)
             if log:
                 wandb.log(
@@ -117,8 +117,8 @@ for prune_it in range(hparams["num_prune"]):
         if log: wandb.log({"test_acc RN18_real": real_test_acc, "test_acc RN18_quat": quat_test_acc})
 
         if save:
-            torch.save(models[0], f"saved_models/RN18/real_prune{prune_it+1}.pth")
-            torch.save(models[1], f"saved_models/RN18/quat_prune{prune_it+1}.pth")
+            torch.save(models[0], f"{save_path}/real_prune{prune_it+1}.pth")
+            torch.save(models[1], f"{save_path}/quat_prune{prune_it+1}.pth")
 
     print(f"pruning {prune_it+1}/{hparams['num_prune']} done")
 
