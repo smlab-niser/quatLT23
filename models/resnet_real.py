@@ -63,11 +63,11 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_classes=10, img_channel=4, name = "ResNet_real"):
         super(ResNet, self).__init__()
+        self.name = name
         self.in_planes = 64
-        print("Doing 3")
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(img_channel, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
@@ -93,26 +93,23 @@ class ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
+    
+    def __repr__(self):
+        return self.name
 
 
-def ResNet18(num_classes=100):
-    return ResNet(BasicBlock, [2,2,2,2], num_classes)
+def ResNet18(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(BasicBlock, [2, 2, 2, 2], num_classes, img_channel, name=name)
 
-def ResNet34(num_classes=100):
-    return ResNet(BasicBlock, [3,4,6,3], num_classes)
+def ResNet34(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(BasicBlock, [3, 4, 6, 3], num_classes, img_channel, name=name)
 
-def ResNet50(num_classes=100):
-    return ResNet(Bottleneck, [3,4,6,3], num_classes)
+def ResNet50(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(Bottleneck, [3, 4, 6, 3], num_classes, img_channel, name=name)
 
-def ResNet101(num_classes=100):
-    return ResNet(Bottleneck, [3,4,23,3], num_classes)
+def ResNet101(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(Bottleneck, [3, 4, 23, 3], num_classes, img_channel, name=name)
 
-def ResNet152(num_classes=100):
-    return ResNet(Bottleneck, [3,8,36,3], num_classes)
+def ResNet152(img_channel=4, num_classes=1000, name = "ResNet18"):
+    return ResNet(Bottleneck, [3, 8, 36, 3], num_classes, img_channel, name=name)
 
-
-if __name__ == '__main__':
-    net = ResNet18(10)
-    print(sum(p.numel() for p in net.parameters() if p.requires_grad))
-    y = net(torch.randn(128,3,32,32))
-    print(y.size())

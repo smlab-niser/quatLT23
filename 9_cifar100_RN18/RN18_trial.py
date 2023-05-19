@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch import nn
 from tqdm import trange
@@ -57,9 +58,6 @@ def adjust_learning_rate(epoch):
 
 
 
-
-
-
 log = True
 save = False
 seed = 21
@@ -69,8 +67,8 @@ GPU = torch.device(f'cuda:{hparams["gpu"]}')
 num_classes = 20 if hparams["version"] == "coarse" else 100
 
 models = [
-    ResNet18(num_classes=num_classes).to(GPU),      # real
-    # ResNet18(4, num_classes=num_classes).to(GPU)  # quat
+    ResNet18(4, num_classes=num_classes).to(GPU),      # real
+    ResNet18_quat(4, num_classes=num_classes).to(GPU)  # quat
 ]
 # for model in models:
 #     torch.manual_seed(seed)
@@ -81,7 +79,7 @@ loss_fns = [nn.CrossEntropyLoss() for _ in models]
 
 if log:
     import wandb
-    wandb.init(project="QuatLT23", name="RN18 cifar100 last try for today", config=hparams)
+    wandb.init(project="QuatLT23", name="RN18 cifar100 again tomorrow", config=hparams)
     wandb.watch(models[0])
     # wandb.watch(models[1])
 
@@ -90,16 +88,37 @@ if log:
 # print("Loading Validation data...")
 # validation_generator = torch.utils.data.DataLoader(Val(version=hparams["version"]), shuffle=True, batch_size=hparams["batch_size"], num_workers=8)
 
+
+class To4Channels:
+    def __init__(self):
+        pass
+    def __call__(self, sample):
+        mat = np.array(
+            [
+                [1, 0, 0, 0.299],
+                [0, 1, 0, 0.587],
+                [0, 0, 1, 0.144]
+            ]
+        )
+        sample = sample.numpy().transpose(1, 2, 0)
+        
+        # torch.Tensor(np.dot(batch_x.numpy().transpose(0, 2, 3, 1), mat).transpose(0, 3, 1, 2)).float()
+        
+        return torch.from_numpy(np.dot(sample, mat).transpose(2, 0, 1)).float()
+
+
 transform_train = transforms.Compose([
-	transforms.RandomCrop(32, padding=4),
-	transforms.RandomHorizontalFlip(),
-	transforms.ToTensor(),
-	transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    To4Channels(),
 ])
 
 transform_test = transforms.Compose([
-	transforms.ToTensor(),
-	transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    To4Channels(),
 ])
 
 
@@ -110,7 +129,6 @@ testset = torchvision.datasets.CIFAR100(root='/home/aritra/project/quatLT23/9_ci
 validation_generator = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, drop_last=True)
 
 
-
 num_epochs = hparams["num_epochs"]
 
 
@@ -118,11 +136,6 @@ scheduler = [LRS(
         optimiser,
         lr_lambda=adjust_learning_rate
     ) for optimiser in optimisers]
-
-# scheduler = [LRS(
-#         optimiser,
-#         lr_lambda=adjust_learning_rate
-#     ) for optimiser in optimisers]
 
 
 for epoch in trange(num_epochs, desc="Training"):
@@ -134,13 +147,13 @@ for epoch in trange(num_epochs, desc="Training"):
             wandb.log(
                 {
                     "loss RN18_real": losses[0],
-                    # "loss RN18_quat": losses[1],
+                    "loss RN18_quat": losses[1],
                 }
             )
 
     real_test_acc = train_accuracy(models[0], validation_generator, GPU)
-    # quat_test_acc = train_accuracy(models[1], validation_generator, GPU)
-    if log: wandb.log({"test_acc RN18_real": real_test_acc})
+    quat_test_acc = train_accuracy(models[1], validation_generator, GPU)
+    if log: wandb.log({"test_acc RN18_real": real_test_acc, "test_acc RN18_quat": quat_test_acc})
 
 
 if log:
