@@ -68,6 +68,13 @@ def reset_model(m):
             nn.init.xavier_uniform_(m.i_weight.data)
             nn.init.xavier_uniform_(m.j_weight.data)
             nn.init.xavier_uniform_(m.k_weight.data)
+    elif isinstance(m, nn.BatchNorm2d):
+        try:
+            nn.init.constant_(m.weight_orig.data, 1)
+            nn.init.constant_(m.bias_orig.data, 0)
+        except:
+            nn.init.constant_(m.weight.data, 1)
+            nn.init.constant_(m.bias.data, 0)
 
 
 def get_prune_percentage(model):
@@ -78,7 +85,7 @@ def get_prune_percentage(model):
         model (nn.Module): PyTorch model to be pruned.
 
     Returns:
-        float: Part of weights pruned from the model.
+        float: Part of weights remaining in the model.
     """
     total_weights = 0
     pruned_weights = 0

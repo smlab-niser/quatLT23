@@ -101,15 +101,15 @@ class ResNet(nn.Module):
 def ResNet18(img_channel=4, num_classes=1000, name = "ResNet18"):
     return ResNet(BasicBlock, [2, 2, 2, 2], num_classes, img_channel, name=name)
 
-def ResNet34(img_channel=4, num_classes=1000, name = "ResNet18"):
+def ResNet34(img_channel=4, num_classes=1000, name = "ResNet34"):
     return ResNet(BasicBlock, [3, 4, 6, 3], num_classes, img_channel, name=name)
 
-def ResNet50(img_channel=4, num_classes=1000, name = "ResNet18"):
+def ResNet50(img_channel=4, num_classes=1000, name = "ResNet50"):
     return ResNet(Bottleneck, [3, 4, 6, 3], num_classes, img_channel, name=name)
 
-def ResNet101(img_channel=4, num_classes=1000, name = "ResNet18"):
+def ResNet101(img_channel=4, num_classes=1000, name = "ResNet101"):
     return ResNet(Bottleneck, [3, 4, 23, 3], num_classes, img_channel, name=name)
 
-def ResNet152(img_channel=4, num_classes=1000, name = "ResNet18"):
+def ResNet152(img_channel=4, num_classes=1000, name = "ResNet152"):
     return ResNet(Bottleneck, [3, 8, 36, 3], num_classes, img_channel, name=name)
 

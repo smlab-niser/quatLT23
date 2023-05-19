@@ -18,3 +18,7 @@ data/imagenet/64x64/val/val_data
 *.xml
 *.m
 *.png
+data/cifar100/cifar-100-python/file.txt~
+data/cifar100/cifar-100-python/meta
+data/cifar100/cifar-100-python/test
+data/cifar100/cifar-100-python/train
