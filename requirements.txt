@@ -9,3 +9,4 @@ notebook
 scikit-learn
 kaggle
 wandb
+# -e .

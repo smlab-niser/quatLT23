@@ -31,21 +31,21 @@ hparams = {
 }
 
 
-log = True
-save = True
+log = False
+save = False
 seed = 21
 save_path = "saved_models/RN183450"
 CPU = torch.device('cpu')
 GPU = torch.device(f'cuda:{hparams["gpu"]}')
-num_classes = 20 if hparams["version"] == "coarse" else 100
+num_classes = 100
 
 models = [
     ResNet18      (4, num_classes, "RN18_real").to(GPU),
     ResNet18_quat (4, num_classes, "RN18_quat").to(GPU),
-    ResNet34      (4, num_classes, "RN34_real").to(GPU),
-    ResNet34_quat (4, num_classes, "RN34_quat").to(GPU),
-    ResNet50      (4, num_classes, "RN50_real").to(GPU),
-    ResNet50_quat (4, num_classes, "RN50_quat").to(GPU),
+    # ResNet34      (4, num_classes, "RN34_real").to(GPU),
+    # ResNet34_quat (4, num_classes, "RN34_quat").to(GPU),
+    # ResNet50      (4, num_classes, "RN50_real").to(GPU),
+    # ResNet50_quat (4, num_classes, "RN50_quat").to(GPU),
 ]
 for model in models:
     torch.manual_seed(seed)
