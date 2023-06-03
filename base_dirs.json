@@ -2,6 +2,7 @@
 	"mnist": "/home/aritra/project/quatLT23/data/mnist",
 	"cifar10": "/home/aritra/project/quatLT23/data/cifar10",
 	"cifar100": "/home/aritra/project/quatLT23/data/cifar100",
-	"imagenet64x64": "/mnt/data/datasets/imagenet/64x64",
-	"ILSVRC": "/mnt/data/datasets/ILSVRC"
+	"imagenet64x64": "/home/aritra/project/quatLT23/data/64x64",
+	"ILSVRC": "/home/data/imagenet/ILSVRC/ILSVRC",
+	"tiny_imagenet": "/home/aritra/project/quatLT23/data/tiny_imagenet/tiny-imagenet-200"
 }

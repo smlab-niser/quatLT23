@@ -65,10 +65,11 @@ def one_epoch(
     batch_x, batch_y = batch_x.to(GPU), batch_y.long().flatten().to(GPU)
     optimiser.zero_grad()
     output = model(batch_x)
+    # print(f"{output.shape = }, {batch_y.shape = }")
     loss = loss_fn(output, batch_y)
     loss.backward()
     optimiser.step()
-    
+
     return loss
 
 
@@ -82,11 +83,12 @@ def train_accuracy(
     j = 0
     for batch_x, batch_y in data_generator:
         batch_x, batch_y = batch_x.to(GPU), batch_y.flatten()
-        output = model(batch_x)
-        acc = accuracy_score(batch_y.numpy(), output.argmax(1).cpu().numpy())
+        acc = accuracy_score(batch_y.numpy(), model(batch_x).argmax(1).cpu().numpy())
         accs.append(acc*100)
         j += 1
         if j == n: break
+    # if np.array(accs).mean() < 10:
+    #     return np.array(accs).mean()
     return np.array(accs).mean()
 
 
@@ -203,3 +205,19 @@ def train_multiple_models(
         loss = one_epoch(model, x, y, optimiser, loss_fn, GPU)
         losses.append(loss.item())
     return losses
+
+def train_multiple_models_v2(
+        x, y,
+        models,
+        optimisers,
+        loss_fns: list,
+        GPU: torch.device = torch.device("cuda")
+    ):
+    losses = []
+    accs = []
+    for model, optimiser, loss_fn in zip(models, optimisers, loss_fns):
+        loss = one_epoch(model, x, y, optimiser, loss_fn, GPU)
+        acc = accuracy_score(y.numpy(), model(x.to(GPU)).argmax(1).cpu().numpy())
+        losses.append(loss.item())
+        accs.append(acc*100)
+    return losses, accs

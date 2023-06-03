@@ -7,10 +7,19 @@ from utils.pruning import prune_model, reset_model
 from utils.training import train_accuracy, train_multiple_models
 from data_loaders.imagenet import Train, Val
 
+model_choices = [
+    "RN18_real",  "RN18_quat",
+    "RN34_real",  "RN34_quat",
+    "RN50_real",  "RN50_quat",
+    "RN101_real", "RN101_quat",
+    "RN152_real", "RN152_quat",
+]
+
+
 import argparse
 
 parser = argparse.ArgumentParser(description="Train a model on ImageNet64x64.")
-parser.add_argument("model_name", type=str, help="Name of the model.", choices=["RN18_real", "RN18_quat", "RN34_real", "RN34_quat", "RN152_real", "RN152_quat"])
+parser.add_argument("model_name", type=str, help="Name of the model.", choices=model_choices)
 parser.add_argument("--save", action="store_true", help="Whether to save models.")
 parser.add_argument("--log", action="store_true", help="Whether to log to wandb.")
 parser.add_argument("--seed", type=int, help="Seed for initializing the model weights", default=21)
