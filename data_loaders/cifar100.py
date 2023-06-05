@@ -6,7 +6,7 @@ from json import load
 class Train(torch.utils.data.Dataset):
     def __init__(self, length = 50000, version = "coarse"):
         self.length = length
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             base_dir = load(f)["cifar100"]
         self.version = version == "coarse"
         if self.version:
@@ -38,7 +38,7 @@ class Train(torch.utils.data.Dataset):
 class Val(torch.utils.data.Dataset):
     def __init__(self, length = 10000, version = "coarse"):
         self.length = length
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             base_dir = load(f)["cifar100"]
         self.version = version == "coarse"
         if self.version:

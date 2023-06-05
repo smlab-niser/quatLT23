@@ -4,7 +4,7 @@ import numpy as np
 
 class Train(torch.utils.data.Dataset):
     def __init__(self, length = 100000, d4 = True):
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             self.base_dir = load(f)["tiny_imagenet"]
         self.length = length
         if d4: self.x = torch.from_numpy(np.load(f"{self.base_dir}/x_train_4.npy"))
@@ -15,7 +15,7 @@ class Train(torch.utils.data.Dataset):
 
 class Val(torch.utils.data.Dataset):
     def __init__(self, length = 10000, d4 = True):
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             self.base_dir = load(f)["tiny_imagenet"]
         self.length = length
         if d4: self.x = torch.from_numpy(np.load(f"{self.base_dir}/x_val_4.npy"))

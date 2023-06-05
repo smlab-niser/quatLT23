@@ -88,28 +88,54 @@ def get_prune_percentage(model):
         float: Part of weights remaining in the model.
     """
     total_weights = 0
-    pruned_weights = 0
+    remaining_weights = 0
 
     # Iterate through each module in the model and compute the percentage of weights pruned
     for module_name, module in model.named_modules():
         if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
             total_weights += module.weight.numel()
-            try: pruned_weights += module.weight_mask.sum().item()
-            except: pruned_weights += module.weight.numel()
+            try: remaining_weights += module.weight_mask.sum().item()
+            except: remaining_weights += module.weight.numel()
         elif isinstance(module, layers.QConv2d) or isinstance(module, layers.QLinear):
             total_weights += module.r_weight.numel()
             total_weights += module.i_weight.numel()
             total_weights += module.j_weight.numel()
             total_weights += module.k_weight.numel()
             try:
-                pruned_weights += module.r_weight_mask.sum().item()
-                pruned_weights += module.i_weight_mask.sum().item()
-                pruned_weights += module.j_weight_mask.sum().item()
-                pruned_weights += module.k_weight_mask.sum().item()
+                remaining_weights += module.r_weight_mask.sum().item()
+                remaining_weights += module.i_weight_mask.sum().item()
+                remaining_weights += module.j_weight_mask.sum().item()
+                remaining_weights += module.k_weight_mask.sum().item()
             except:
-                pruned_weights += module.r_weight.numel()
-                pruned_weights += module.i_weight.numel()
-                pruned_weights += module.j_weight.numel()
-                pruned_weights += module.k_weight.numel()
+                remaining_weights += module.r_weight.numel()
+                remaining_weights += module.i_weight.numel()
+                remaining_weights += module.j_weight.numel()
+                remaining_weights += module.k_weight.numel()
 
-    return pruned_weights / total_weights
+    return remaining_weights / total_weights
+
+
+def number_of_parameters(model):
+    """Counts the number of parameters given a model.
+
+    Args:
+        model: PyTorch model to be pruned.
+    
+    Returns:
+        int: Number of parameters in the model.
+    """
+    total_weights = 0
+
+    # Iterate through each module in the model and compute the number of parameters
+    for module_name, module in model.named_modules():
+        if (
+            isinstance(module, nn.Conv2d)
+            or isinstance(module, nn.Linear)
+            or isinstance(module, nn.BatchNorm2d)
+            or isinstance(module, layers.QConv2d) 
+            or isinstance(module, layers.QLinear)
+        ):
+            for param in module.parameters():
+                total_weights += param.numel()
+
+    return total_weights

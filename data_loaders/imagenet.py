@@ -22,7 +22,7 @@ class Train(torch.utils.data.Dataset):
         return self._no_ram_getitem_(index)
 
     def _no_ram_init_(self):
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             self.base_dir = load(f)["imagenet64x64"]+"/train"
         self.mat = np.array(
             [
@@ -33,7 +33,7 @@ class Train(torch.utils.data.Dataset):
         )
 
     def _ram_init_(self):
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             self.base_dir = load(f)["imagenet64x64"]
         print("Loading data into RAM...", end=" ", flush=True)
         t0 = time.time()
@@ -56,7 +56,7 @@ class Train(torch.utils.data.Dataset):
 
 class Val(torch.utils.data.Dataset):
     def __init__(self, length = 50000, d4 = True):
-        with open("../base_dirs.json") as f:
+        with open("/home/aritra/project/quatLT23/base_dirs.json") as f:
             self.base_dir = load(f)["imagenet64x64"]+"/data/val"
         self.length = length
         data = np.load(f"{self.base_dir}/val_data", allow_pickle=True)

@@ -87,8 +87,6 @@ def train_accuracy(
         accs.append(acc*100)
         j += 1
         if j == n: break
-    # if np.array(accs).mean() < 10:
-    #     return np.array(accs).mean()
     return np.array(accs).mean()
 
 
