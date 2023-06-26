@@ -9,4 +9,5 @@ notebook
 scikit-learn
 kaggle
 wandb
+torchmetrics
 # -e .

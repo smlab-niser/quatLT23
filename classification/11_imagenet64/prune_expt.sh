@@ -52,6 +52,15 @@
 
 tmux new-session -d -s R50 "python img64.py RN50_real --save --log --gpu 0"
 tmux new-session -d -s Q50 "python img64.py RN50_quat --save --log --gpu 1"
+tmux new-session -d -s R152 "python img64.py RN152_real --save --log --resume --gpu 2"
+tmux new-session -d -s Q152 "python img64.py RN152_quat --save --log --resume --gpu 3"
 
-python test_img64.py RN50_real --gpu 0
-python test_img64.py RN101_real --gpu 1
+# python test_img64.py RN50_real --gpu 0
+# python test_img64.py RN101_real --gpu 0
+
+
+tmux new-session -d -s R101 "python img64.py RN101_real --save --log --gpu 0 --left_after_prune 0.5 --num_prune 11"
+
+
+tmux new-session -d -s R152 "python img64.py RN152_real --save --log --gpu 2 --left_after_prune 0.5 --num_prune 13"
+tmux new-session -d -s Q152 "python img64.py RN152_quat --save --log --gpu 3 --left_after_prune 0.5 --num_prune 13"

@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score,top_k_accuracy_score
+from sklearn.metrics import accuracy_score, top_k_accuracy_score
 import wandb
 
 def train(
@@ -62,7 +62,7 @@ def one_epoch(
     loss_fn,
     GPU = torch.device("cuda"),
 ):
-    batch_x, batch_y = batch_x.to(GPU), batch_y.long().flatten().to(GPU)
+    batch_x, batch_y = batch_x.to(GPU), batch_y.flatten().to(GPU)
     optimiser.zero_grad()
     output = model(batch_x)
     # print(f"{output.shape = }, {batch_y.shape = }")
@@ -77,7 +77,7 @@ def train_accuracy(
     model,
     data_generator,
     GPU = torch.device("cuda"),
-    n = np.inf
+    n = np.inf,
 ):
     accs = []
     j = 0
@@ -88,6 +88,29 @@ def train_accuracy(
         j += 1
         if j == n: break
     return np.array(accs).mean()
+
+def train_accuracies(
+    model,
+    data_generator,
+    GPU = torch.device("cuda"),
+    name="",
+    n = np.inf,
+):
+    accs5 = []
+    accs1 = []
+    j = 0
+    for batch_x, batch_y in data_generator:
+        batch_x, batch_y = batch_x.to(GPU), batch_y.flatten()
+        output = model(batch_x)
+        acc1 = accuracy_score(batch_y.numpy(), model(batch_x).argmax(1).cpu().numpy())
+        acc5 = top_k_accuracy_score(batch_y.numpy(), output.detach().cpu().numpy(), k=5, labels=np.arange(1000))
+        accs5.append(acc5*100)
+        accs1.append(acc1*100)
+        j += 1
+        if j == n: break
+    if name != "":
+        name = "_" + name
+    return {f"top1{name}": np.array(accs1).mean(), f"top5{name}":np.array(accs5).mean()}
 
 
 #train and measure top1 and top5 train and test accuracy. trial version
