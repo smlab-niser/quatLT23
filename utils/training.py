@@ -79,14 +79,17 @@ def train_accuracy(
     GPU = torch.device("cuda"),
     n = np.inf,
 ):
-    accs = []
-    j = 0
-    for batch_x, batch_y in data_generator:
-        batch_x, batch_y = batch_x.to(GPU), batch_y.flatten()
-        acc = accuracy_score(batch_y.numpy(), model(batch_x).argmax(1).cpu().numpy())
-        accs.append(acc*100)
-        j += 1
-        if j == n: break
+    model.eval()
+    with torch.no_grad():
+        accs = []
+        j = 0
+        for batch_x, batch_y in data_generator:
+            batch_x, batch_y = batch_x.to(GPU), batch_y.flatten()
+            acc = accuracy_score(batch_y.numpy(), model(batch_x).argmax(1).cpu().numpy())
+            accs.append(acc*100)
+            j += 1
+            if j == n: break
+    model.train()
     return np.array(accs).mean()
 
 def train_accuracies(

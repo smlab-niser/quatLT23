@@ -28,6 +28,8 @@ parser.add_argument("--left_after_prune", type=float, help="Fraction of weights 
 parser.add_argument("--num_prune", type=int, help="How many prune iterations to run.", default=25)
 parser.add_argument("--resume", action="store_true", help="Whether to resume from a checkpoint.")
 
+# tmux new-session -d -s YOLO "python pretraining.py --gpu 1 --lr 0.1 --momentum 0.9 --weight_decay 0.0001 --optimiser sgd --num_epochs 40"
+
 
 args = parser.parse_args()
 print(f"args = {args}")

@@ -24,8 +24,9 @@ parser.add_argument("--save", action="store_true", help="Whether to save models.
 parser.add_argument("--log", action="store_true", help="Whether to log to wandb.")
 parser.add_argument("--seed", type=int, help="Seed for initializing the model weights", default=21)
 parser.add_argument("--gpu", type=int, choices=[0, 1, 2, 3], help="Which GPU to use.")
-parser.add_argument("--left_after_prune", type=float, help="Fraction of weights to leave after pruning.", default=0.7)
-parser.add_argument("--num_prune", type=int, help="How many prune iterations to run.", default=25)
+
+# tmux new-session -d -s YOLO "python pretraining.py --gpu 1 --lr 0.1 --momentum 0.9 --weight_decay 0.0001 --optimiser sgd --num_epochs 40"
+
 
 args = parser.parse_args()
 print(f"args = {args}")
@@ -101,9 +102,24 @@ seed = args.seed
 CPU = torch.device('cpu')
 GPU = torch.device(f'cuda:{hparams["gpu"]}')
 
-models = [
-    given_model(name=args.model_name).to(GPU),
-]
+resume_from = 0
+if args.resume:
+    from os import listdir
+    def rule(x):
+        x = x[:-3].split("_")[-1]
+        try: return int(x)
+        except: return 0
+    l = listdir(save_path)
+    if len(l) < 2: raise ValueError("No saved models found.")
+    # taking the second last save because the last save might not have finished all epochs
+    last_full_save = sorted(l, key=rule, reverse=True)[1]
+    models = [torch.load(f"{save_path}/{last_full_save}").to(GPU)]
+    resume_from = rule(last_full_save)
+    print(f"Resuming from {last_full_save}")
+else:
+    models = [
+        given_model(name=args.model_name).to(GPU),
+    ]
 
 for model in models:
     torch.manual_seed(seed)
@@ -114,7 +130,8 @@ schedulers = [LR_Sched(optimiser, hparams["lr_schedule"]) for optimiser in optim
 
 if log:
     import wandb
-    wandb.init(project="QuatLT23", name=f"{args.model_name} prune", config=hparams)
+    name = f"{args.model_name} prune" if not args.resume else f"{args.model_name} prune (resumed)"
+    wandb.init(project="QuatLT23", name=name, config=hparams)
     for model in models:
         wandb.watch(model)
 
@@ -127,30 +144,31 @@ validation_generator = torch.utils.data.DataLoader(Val(), batch_size=hparams["ba
 num_epochs = hparams["num_epochs"]
 
 
-# pretraining
-for epoch in range(num_epochs):
-    
-    for sched in schedulers:
-        sched.step(epoch)
+if not args.resume:
+    # pretraining
+    for epoch in trange(num_epochs, desc = "Pretraining", unit = "epoch"):
+        
+        for sched in schedulers:
+            sched.step(epoch)
 
-    for batch_x, batch_y in tqdm(training_generator, desc=f"Epoch {epoch}", unit="batch"):
-        losses = train_multiple_models(batch_x, batch_y, models, optimisers, loss_fns, GPU)
-        if log: wandb.log({f"loss {model.name}": losses[i] for i, model in enumerate(models)})
+        for batch_x, batch_y in training_generator:
+            losses = train_multiple_models(batch_x, batch_y, models, optimisers, loss_fns, GPU)
+            if log: wandb.log({f"loss {model.name}": losses[i] for i, model in enumerate(models)})
 
-    if save:
-        for model in models:
-            torch.save(model, f"{save_path}/{model.name}_unpruned.pt")
+        if save:
+            for model in models:
+                torch.save(model, f"{save_path}/{model.name}_unpruned.pt")
 
-    if log:
-        accs = {
-            f"test_acc {model.name}": train_accuracy(model, validation_generator, GPU) 
-            for model in models
-        }
-        wandb.log(accs)
+        # if log:
+        #     accs = {
+        #         f"test_acc {model.name}": train_accuracy(model, validation_generator, GPU) 
+        #         for model in models
+        #     }
+        #     wandb.log(accs)
 
 
 # pruning and retraining
-for prune_it in range(hparams["num_prune"]):
+for prune_it in range(resume_from, hparams["num_prune"]):
 
     models = [prune_model(model, 1-hparams["left_after_prune"]) for model in models]
     for model in models:
@@ -163,7 +181,7 @@ for prune_it in range(hparams["num_prune"]):
 
 
     for epoch in trange(num_epochs, desc=f"Pruning {prune_it+1}/{hparams['num_prune']}", unit = "epoch"):
-    
+
         for sched in schedulers:
             sched.step(epoch)
 
@@ -175,12 +193,12 @@ for prune_it in range(hparams["num_prune"]):
             for model in models:
                 torch.save(model, f"{save_path}/{model.name}_{prune_it+1}.pt")
 
-        if log:
-            accs = {
-                f"test_acc {model.name}": train_accuracy(model, validation_generator, GPU) 
-                for model in models
-            }
-            wandb.log(accs)
+        # if log:
+        #     accs = {
+        #         f"test_acc {model.name}": train_accuracy(model, validation_generator, GPU) 
+        #         for model in models
+        #     }
+        #     wandb.log(accs)
 
 
 if log:

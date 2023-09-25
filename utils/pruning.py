@@ -79,7 +79,7 @@ def reset_model(m):
 
 def get_prune_percentage(model):
     """
-    Computes the percentage of weights pruned from a PyTorch model.
+    Computes the percentage of weights remaining after pruning in a PyTorch model.
 
     Args:
         model (nn.Module): PyTorch model to be pruned.

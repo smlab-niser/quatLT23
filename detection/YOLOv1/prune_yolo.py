@@ -28,7 +28,7 @@ hparams = {
     "weight_decay": 5e-4,
     "num_prune": 25,
     "left_after_prune": 0.7,
-    "gpu": 1,
+    "gpu": 0,
 }
 
 # with open(f"{save_path}/dirs.sh", "a") as f:
@@ -43,8 +43,8 @@ GPU = torch.device(f'cuda:{hparams["gpu"]}')
 
 print("Initialising Models")
 models = [
-    # Real(in_channels=4, name="real", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_real/18.pt").to(GPU),
-    Quat(in_channels=4, name="quat", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_quat/18.pt").to(GPU),
+    Real(in_channels=4, name="real", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_real/18.pt", device=GPU).to(GPU),
+    # Quat(in_channels=4, name="quat", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_quat/18.pt", device=GPU).to(GPU),
 ]
 
 optimisers = [torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"], momentum=hparams["momentum"], weight_decay=hparams["weight_decay"]) for model in models]
@@ -53,7 +53,7 @@ loss_fns = [YoloLoss() for _ in models]
 
 if log:
     import wandb
-    name = f"YOLO prune quat"
+    name = f"YOLO prune real"
     wandb.init(project="QuatLT23", name=name, config=hparams)
     for model in models:
         wandb.watch(model)
@@ -111,7 +111,7 @@ for prune_it in range(hparams["num_prune"]):
     models = [prune_model(model, 1-hparams["left_after_prune"]) for model in models]
     
     # reset everything
-    for model in models: model.reset()
+    for model in models: model.reset(GPU)
     optimisers = [torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"], momentum=hparams["momentum"], weight_decay=hparams["weight_decay"]) for model in models]
     loss_fns = [YoloLoss() for _ in models]
     for i, scheduler in enumerate(schedulers): scheduler.reset(optimisers[i])
@@ -123,7 +123,7 @@ for prune_it in range(hparams["num_prune"]):
             scheduler.change()
 
         train_losses = []
-        for batch_x, batch_y in tqdm(training_generator, desc = f"Epoch {epoch+1}/{num_epochs}", unit = "batch"):
+        for batch_x, batch_y in training_generator:
             losses = train_multiple_models(batch_x, batch_y, models, optimisers, loss_fns, GPU)
             train_losses.append(losses)
             # if log: wandb.log({f"loss Yolo {model.name}": losses[i] for i, model in enumerate(models)})

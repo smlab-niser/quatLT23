@@ -20,33 +20,34 @@ hparams = {
     "warmup_epochs": 10,
     "num_prune": 20,
     "left_after_prune": 0.7,
-    "model": "ResNet18",
+    "model": "ResNet50",
     "dataset": "cifar100",
     "version": "fine",
     "optimizer": "sgd",
     "learning_rate": 0.1,
     "momentum": 0.9,
     "weight_decay": 0.0001,
-    "gpu": 0,
+    "gpu": 2,
 }
 
 
-log = False
-save = False
+log = True
+save = True
 seed = 21
-save_path = "saved_models/RN183450"
+save_path = "saved_models"
 CPU = torch.device('cpu')
 GPU = torch.device(f'cuda:{hparams["gpu"]}')
 num_classes = 100
 
 models = [
-    ResNet18      (4, num_classes, "RN18_real").to(GPU),
-    ResNet18_quat (4, num_classes, "RN18_quat").to(GPU),
+    # ResNet18      (4, num_classes, "RN18_real").to(GPU),
+    # ResNet18_quat (4, num_classes, "RN18_quat").to(GPU),
     # ResNet34      (4, num_classes, "RN34_real").to(GPU),
     # ResNet34_quat (4, num_classes, "RN34_quat").to(GPU),
-    # ResNet50      (4, num_classes, "RN50_real").to(GPU),
-    # ResNet50_quat (4, num_classes, "RN50_quat").to(GPU),
+    ResNet50      (4, num_classes, "RN50_real").to(GPU),
+    ResNet50_quat (4, num_classes, "RN50_quat").to(GPU),
 ]
+
 for model in models:
     torch.manual_seed(seed)
     model.apply(reset_model)
@@ -59,13 +60,11 @@ scheduler = [
     ) for optimiser in optimisers
 ]
 
-
 if log:
     import wandb
     wandb.init(project="QuatLT23", name="RN18,34,50 real+quat cifar100 pruning", config=hparams)
     for model in models:
         wandb.watch(model)
-
 
 trainset = torchvision.datasets.CIFAR100(root='/home/aritra/project/quatLT23/data/cifar100', train=True, download=True, transform=transform_train)
 training_generator = torch.utils.data.DataLoader(trainset, batch_size=100, shuffle=True, drop_last=True)
@@ -73,9 +72,7 @@ training_generator = torch.utils.data.DataLoader(trainset, batch_size=100, shuff
 testset = torchvision.datasets.CIFAR100(root='/home/aritra/project/quatLT23/data/cifar100', train=False, download=True, transform=transform_test)
 validation_generator = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, drop_last=True)
 
-
 num_epochs = hparams["num_epochs"]
-
 
 # pretraining
 for epoch in trange(num_epochs, desc="Pre Training Full model"):
@@ -99,7 +96,7 @@ for epoch in trange(num_epochs, desc="Pre Training Full model"):
 
     if save:
         for model in models:
-            torch.save(model.state_dict(), f"{save_path}/{model.name}_unpruned.pt")
+            torch.save(model, f"{save_path}/{model.name}_prune/{model.name}_unpruned.pt")
 
 
 # pruning and retraining
@@ -136,7 +133,7 @@ for prune_it in range(hparams["num_prune"]):
 
         if save:
             for model in models:
-                torch.save(model.state_dict(), f"{save_path}/{model.name}_{prune_it+1}.pt")
+                torch.save(model, f"{save_path}/{model.name}_prune/{model.name}_{prune_it+1}.pt")
 
 
 if log:

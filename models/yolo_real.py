@@ -142,7 +142,7 @@ class YoloBase(nn.Module):
         return self.yolo_base(x)
 
 class Yolov1(nn.Module):
-    def __init__(self, base_path, in_channels=3, S=7, B=2, C=20, name="yolov1_real"):
+    def __init__(self, base_path, in_channels=4, S=7, B=2, C=20, name="yolov1_real", device=torch.device("cpu")):
         super(Yolov1, self).__init__()
         self.architecture = architecture_config
         self.base_path = base_path
@@ -151,7 +151,7 @@ class Yolov1(nn.Module):
         self.yolo_base = YoloBase(in_channels=1024)
         self.fcs = self._create_fcs(S, B, C)
         self.name = name
-        self.reset()
+        self.reset(device)
     def __str__(self):
         return self.name
 
@@ -165,15 +165,15 @@ class Yolov1(nn.Module):
             nn.AdaptiveAvgPool2d(7),
             nn.Flatten(),
             nn.Linear(1024 * S * S, 4096),
-            nn.Dropout(0.5),
+            # nn.Dropout(p=0),
             nn.LeakyReLU(0.1),
             nn.Linear(4096, S * S * (C + B * 5)),
         )
 
-    def reset(self, seed=21):
+    def reset(self, device, seed=21):
         torch.manual_seed(seed)
         self.apply(reset_model)
-        pret_base = torch.load(self.base_path)
+        pret_base = torch.load(self.base_path, map_location=device)
         self.pret_base = pret_base.pret_base
 
 

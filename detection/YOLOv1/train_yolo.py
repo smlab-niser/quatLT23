@@ -5,13 +5,13 @@ from tqdm import tqdm, trange
 from torch.utils.data import DataLoader
 
 from utils.pruning import prune_model, reset_model
-from utils.training import train_accuracies, train_multiple_models
+from utils.training import train_multiple_models#, train_accuracies
 from data_loaders.pascal_voc import PascalVOC
 # from models.yolo_real import Pretraining as Real
 # from models.yolo_quat import Pretraining as Quat
 from models.yolo_real import Yolov1 as Real
 from models.yolo_quat import Yolov1 as Quat
-from utils.yolo_utils import YoloLoss, YoloSceduler
+from utils.yolo_utils import YoloLoss, YoloSceduler, mAP
 import torchvision.transforms.functional as F
 from torchvision import transforms
 
@@ -19,14 +19,14 @@ save_path = f"saved_models/train"
 
 hparams = {
     "batch_size": 64,
-    "num_epochs": 80,
+    "num_epochs": 140,
     "model": "YOLO",
     "dataset": "Pascal VOC",
-    "optimizer": "sdg",
-    "learning_rate": 0.5,  # does not matter, will be changed by scheduler
-    "momentum": 0.9,
+    "optimizer": "adam",
+    "learning_rate": 1e-2 * 1e-3,  # (don't change) + (change)
+    # "momentum": 0.9,
     "weight_decay": 5e-4,
-    "gpu": 0,
+    "gpu": 1,
 }
 
 # with open(f"{save_path}/dirs.sh", "a") as f:
@@ -41,17 +41,19 @@ GPU = torch.device(f'cuda:{hparams["gpu"]}')
 
 print("Initialising Models")
 models = [
-    Real(in_channels=4, name="real", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_real/18.pt").to(GPU),
-    # Quat(in_channels=4, name="quat", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_quat/18.pt").to(GPU),
+    # Real(in_channels=4, name="real", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_real/18.pt").to(GPU),
+    Quat(in_channels=4, name="quat", base_path="/home/aritra/project/quatLT23/detection/YOLOv1/saved_models/pretrain_quat/18.pt").to(GPU),
 ]
 
-optimisers = [torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"], momentum=hparams["momentum"], weight_decay=hparams["weight_decay"]) for model in models]
-schedulers = [YoloSceduler(optimiser) for optimiser in optimisers]
+if hparams["optimizer"].lower() == "sgd": optimisers = [torch.optim.SGD(model.parameters(), lr=hparams["learning_rate"], momentum=hparams["momentum"], weight_decay=hparams["weight_decay"]) for model in models]
+elif hparams["optimizer"].lower() == "adam": optimisers = [torch.optim.Adam(model.parameters(), lr=hparams["learning_rate"], weight_decay=hparams["weight_decay"]) for model in models]
+else: raise ValueError(f"Optimizer {hparams['optimizer']} not recognised")
+schedulers = [YoloSceduler(optimiser, reduction=hparams["learning_rate"]) for optimiser in optimisers]  # , dropat=[17, 20, 25]
 loss_fns = [YoloLoss() for _ in models]
 
 if log:
     import wandb
-    name = f"YOLO train"
+    name = f"YOLO quat train final"
     wandb.init(project="QuatLT23", name=name, config=hparams)
     for model in models:
         wandb.watch(model)
@@ -77,7 +79,9 @@ for epoch in range(num_epochs):
     for batch_x, batch_y in tqdm(training_generator, desc = f"Epoch {epoch+1}/{num_epochs}", unit = "batch"):
         losses = train_multiple_models(batch_x, batch_y, models, optimisers, loss_fns, GPU)
         train_losses.append(losses)
-        if log: wandb.log({f"loss Yolo {model.name}": losses[i] for i, model in enumerate(models)})
+        dat = {f"loss Yolo {model.name}": losses[i] for i, model in enumerate(models)}
+        # if log: wandb.log(dat)
+        # else: print(dat)
     train_losses = np.array(train_losses).mean(axis=0)
 
     test_losses = []
@@ -86,25 +90,16 @@ for epoch in range(num_epochs):
         test_losses.append([loss_fn(output, batch_y.flatten().to(GPU)).item() for output, loss_fn in zip(outputs, loss_fns)])
     test_losses = np.array(test_losses).mean(axis=0)
 
-    if save and epoch%5 == 0:
+    if save and (epoch+1) in [60, 80, 120, 140]:
         for model in models:
             torch.save(model, f"{save_path}_{model.name}/{epoch+1}.pt")
 
-    if log:
-        dat = {f"train loss Yolo {model.name}": train_losses[i] for i, model in enumerate(models)} | {f"test loss Yolo {model.name}": test_losses[i] for i, model in enumerate(models)}
-        # print(dat)
-        wandb.log(dat)
-
-    # if log: wandb.log(train_accuracies(models[0], validation_generator, GPU, name=models[0].name) | train_accuracies(models[1], validation_generator, GPU, name=models[1].name))
-
-
-
-
-
-
-
-
-
+    dat  = {f"train loss Yolo {model.name}": train_losses[i] for i, model in enumerate(models)}
+    dat |= {f"test loss Yolo {model.name}": test_losses[i] for i, model in enumerate(models)}
+    dat |= {f"train mAP Yolo {model.name}": mAP(model, training_generator, GPU) for model in models}
+    dat |= {f"test mAP Yolo {model.name}": mAP(model, validation_generator, GPU) for model in models}
+    if log: wandb.log(dat)
+    else: print(dat)
 
 
 if log:

@@ -11,6 +11,16 @@ import matplotlib.pyplot as plt
 # import numpy as np
 
 def convert_annotations(annotations, S=7, C=20):
+    """Converts annotations in the format (label, x, y, width, height) to a tensor of shape (S, S, C + 5).
+
+    Args:
+        annotations (list): List of annotations in the format (label, x, y, width, height).
+        S (int, optional): Grid size. Defaults to 7.
+        C (int, optional): Number of classes. Defaults to 20.
+
+    Returns:
+        torch.Tensor: Tensor of shape (S, S, C + 5) containing the converted annotations.
+    """
     # Create empty annotation tensor
     annotation_tensor = torch.zeros((S, S, C + 5))
 

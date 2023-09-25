@@ -1,15 +1,16 @@
 import numpy as np
 import torch
-from torch import nn
-from tqdm import trange
+# from torch import nn
+# from tqdm import trange
 
-from models.resnet_real import ResNet18
-from models.resnet_quat import ResNet18_quat
-from utils.training import train_accuracy, train_multiple_models
-from torch.optim.lr_scheduler import LambdaLR as LRS
+# from models.resnet_real import ResNet18
+# from models.resnet_quat import ResNet18_quat
+# from utils.training import train_accuracy, train_multiple_models
+# from torch.optim.lr_scheduler import LambdaLR as LRS
 import math
-import torchvision
+# import torchvision
 from torchvision import transforms
+import torchvision.transforms.functional as F
 
 hparams = {
     "batch_size": 100,
@@ -54,11 +55,13 @@ transform_train = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    To4Channels(),
+    # To4Channels(),
+    lambda img: torch.cat((img, F.rgb_to_grayscale(img)), dim=0),
 ])
 
 transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    To4Channels(),
+    # To4Channels(),
+    lambda img: torch.cat((img, F.rgb_to_grayscale(img)), dim=0),
 ])
