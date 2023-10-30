@@ -1,0 +1,174 @@
+{
+	"RN18_real": {
+		"saved_models/RN18_real_prune/RN18_real_unpruned.pt": {
+			"accuracy": 64.26,
+			"prune_perc": 1.0
+		},
+		"saved_models/RN18_real_prune/RN18_real_1.pt": {
+			"accuracy": 65.88,
+			"prune_perc": 0.7000000356792181
+		},
+		"saved_models/RN18_real_prune/RN18_real_2.pt": {
+			"accuracy": 64.65,
+			"prune_perc": 0.4899999179377983
+		},
+		"saved_models/RN18_real_prune/RN18_real_3.pt": {
+			"accuracy": 62.87,
+			"prune_perc": 0.3429998444386089
+		},
+		"saved_models/RN18_real_prune/RN18_real_4.pt": {
+			"accuracy": 63.98,
+			"prune_perc": 0.24009999814468067
+		},
+		"saved_models/RN18_real_prune/RN18_real_5.pt": {
+			"accuracy": 63.21,
+			"prune_perc": 0.16807025737560796
+		},
+		"saved_models/RN18_real_prune/RN18_real_6.pt": {
+			"accuracy": 63.14,
+			"prune_perc": 0.11764901068663942
+		},
+		"saved_models/RN18_real_prune/RN18_real_7.pt": {
+			"accuracy": 61.51,
+			"prune_perc": 0.08235423612221131
+		},
+		"saved_models/RN18_real_prune/RN18_real_8.pt": {
+			"accuracy": 61.66,
+			"prune_perc": 0.05764798312515699
+		},
+		"saved_models/RN18_real_prune/RN18_real_9.pt": {
+			"accuracy": 59.55,
+			"prune_perc": 0.0403532849142557
+		},
+		"saved_models/RN18_real_prune/RN18_real_10.pt": {
+			"accuracy": 57.57,
+			"prune_perc": 0.028247326199392596
+		},
+		"saved_models/RN18_real_prune/RN18_real_11.pt": {
+			"accuracy": 54.58,
+			"prune_perc": 0.019773155098988422
+		},
+		"saved_models/RN18_real_prune/RN18_real_12.pt": {
+			"accuracy": 51.45,
+			"prune_perc": 0.013840949894960382
+		},
+		"saved_models/RN18_real_prune/RN18_real_13.pt": {
+			"accuracy": 48.05,
+			"prune_perc": 0.009688780883931223
+		},
+		"saved_models/RN18_real_prune/RN18_real_14.pt": {
+			"accuracy": 45.4,
+			"prune_perc": 0.006781816585984061
+		},
+		"saved_models/RN18_real_prune/RN18_real_15.pt": {
+			"accuracy": 41.52,
+			"prune_perc": 0.004747209171557098
+		},
+		"saved_models/RN18_real_prune/RN18_real_16.pt": {
+			"accuracy": 36.24,
+			"prune_perc": 0.0033228947834128744
+		},
+		"saved_models/RN18_real_prune/RN18_real_17.pt": {
+			"accuracy": 29.68,
+			"prune_perc": 0.0023259282305391274
+		},
+		"saved_models/RN18_real_prune/RN18_real_18.pt": {
+			"accuracy": 24.18,
+			"prune_perc": 0.0016276859315415705
+		},
+		"saved_models/RN18_real_prune/RN18_real_19.pt": {
+			"accuracy": 17.23,
+			"prune_perc": 0.0011391482371611902
+		},
+		"saved_models/RN18_real_prune/RN18_real_20.pt": {
+			"accuracy": 13.58,
+			"prune_perc": 0.0007973413273810883
+		}
+	},
+	"RN18_quat": {
+		"saved_models/RN18_quat_prune/RN18_quat_unpruned.pt": {
+			"accuracy": 61.85,
+			"prune_perc": 1.0
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_1.pt": {
+			"accuracy": 60.58,
+			"prune_perc": 0.7000005708674902
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_2.pt": {
+			"accuracy": 61.32,
+			"prune_perc": 0.4899984015710273
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_3.pt": {
+			"accuracy": 59.67,
+			"prune_perc": 0.342998595665974
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_4.pt": {
+			"accuracy": 59.95,
+			"prune_perc": 0.2401011577192702
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_5.pt": {
+			"accuracy": 59.44,
+			"prune_perc": 0.16806909780101842
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_6.pt": {
+			"accuracy": 58.55,
+			"prune_perc": 0.11764722672573243
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_7.pt": {
+			"accuracy": 54.52,
+			"prune_perc": 0.0823590528166602
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_8.pt": {
+			"accuracy": 54.86,
+			"prune_perc": 0.05764762633297559
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_9.pt": {
+			"accuracy": 52.68,
+			"prune_perc": 0.040351768547484755
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_10.pt": {
+			"accuracy": 48.45,
+			"prune_perc": 0.028243669079533257
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_11.pt": {
+			"accuracy": 44.81,
+			"prune_perc": 0.019769141186947687
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_12.pt": {
+			"accuracy": 42.27,
+			"prune_perc": 0.013830692119745166
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_13.pt": {
+			"accuracy": 41.4,
+			"prune_perc": 0.00968333980316489
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_14.pt": {
+			"accuracy": 34.82,
+			"prune_perc": 0.006774769940401434
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_15.pt": {
+			"accuracy": 27.54,
+			"prune_perc": 0.0047367730002511816
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_16.pt": {
+			"accuracy": 26.86,
+			"prune_perc": 0.003312458612106958
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_17.pt": {
+			"accuracy": 20.28,
+			"prune_perc": 0.0023177220103669537
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_18.pt": {
+			"accuracy": 17.84,
+			"prune_perc": 0.0016184093348252005
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_19.pt": {
+			"accuracy": 13.29,
+			"prune_perc": 0.001128890461945973
+		},
+		"saved_models/RN18_quat_prune/RN18_quat_20.pt": {
+			"accuracy": 10.85,
+			"prune_perc": 0.0007906514739798598
+		}
+	}
+}

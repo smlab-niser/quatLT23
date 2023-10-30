@@ -4,5 +4,6 @@
 	"cifar100": "/home/aritra/project/quatLT23/data/cifar100",
 	"imagenet64x64": "/home/aritra/project/quatLT23/data/64x64",
 	"ILSVRC": "/home/data/imagenet/ILSVRC/ILSVRC",
-	"tiny_imagenet": "/home/aritra/project/quatLT23/data/tiny_imagenet/tiny-imagenet-200"
+	"tiny_imagenet": "/home/aritra/project/quatLT23/data/tiny_imagenet/tiny-imagenet-200",
+	"pascal_voc": "/home/aritra/project/quatLT23/data/pascal_voc/VOCdevkit/VOC2012"
 }
